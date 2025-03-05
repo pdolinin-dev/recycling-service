@@ -14,7 +14,7 @@ public class UserService implements UserDetailsService {
         // Загрузите пользователя из базы данных или другого источника
         if ("admin".equals(username)) {
             return User.withUsername("admin")
-                    .password("$2a$10$yourEncodedPassword") // Зашифрованный пароль
+                    .password("$2a$10$iCIJ/DV6ElsdgPafMhF5duSea8jvDIg0kIc1cbZU0uhEV.QNVxsm") // Зашифрованный пароль
                     .roles("USER")
                     .build();
         } else {
