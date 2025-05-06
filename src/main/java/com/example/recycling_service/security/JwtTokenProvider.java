@@ -1,21 +1,14 @@
 package com.example.recycling_service.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.security.Key;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {

@@ -2,13 +2,11 @@ package com.example.recycling_service.dto;
 
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.AdvertisementImage;
-import com.example.recycling_service.model.Category;
-import com.example.recycling_service.model.User;
-import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
-
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Collections;

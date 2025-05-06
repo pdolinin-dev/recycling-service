@@ -9,23 +9,22 @@ import com.example.recycling_service.model.Category;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.CategoryRepository;
 import com.example.recycling_service.service.AdvertisementService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
-import org.springframework.validation.FieldError;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")

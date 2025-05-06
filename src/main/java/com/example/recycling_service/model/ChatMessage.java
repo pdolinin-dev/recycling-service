@@ -4,8 +4,12 @@
 
 package com.example.recycling_service.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 import java.util.Date;
-import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor

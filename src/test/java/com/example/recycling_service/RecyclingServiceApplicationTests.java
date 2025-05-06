@@ -1,8 +1,8 @@
 package com.example.recycling_service;
 
-import com.example.recycling_service.service.RecyclingPointService;
 import com.example.recycling_service.model.RecyclingPoint;
 import com.example.recycling_service.repository.RecyclingPointRepository;
+import com.example.recycling_service.service.RecyclingPointService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

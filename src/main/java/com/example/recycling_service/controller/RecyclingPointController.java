@@ -3,10 +3,9 @@
 */
 package com.example.recycling_service.controller;
 
-import com.example.recycling_service.service.RecyclingPointService;
 import com.example.recycling_service.model.RecyclingPoint;
+import com.example.recycling_service.service.RecyclingPointService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

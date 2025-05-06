@@ -1,9 +1,10 @@
 package com.example.recycling_service.service;
 
+import com.example.recycling_service.model.RecyclingPoint;
 import com.example.recycling_service.repository.RecyclingPointRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.recycling_service.model.RecyclingPoint;
+
 import java.util.List;
 
 @Service

@@ -1,13 +1,11 @@
 package com.example.recycling_service.service;
 
-import com.example.recycling_service.dto.AdvertisementDTO;
 import com.example.recycling_service.dto.UserProfileDto;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
