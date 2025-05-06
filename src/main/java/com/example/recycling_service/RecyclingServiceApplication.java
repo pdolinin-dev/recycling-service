@@ -9,5 +9,4 @@ public class RecyclingServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RecyclingServiceApplication.class, args);
 	}
-
 }

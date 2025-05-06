@@ -4,31 +4,18 @@
 
 package com.example.recycling_service.model;
 
-import lombok.Data;
-import lombok.Getter;
+import java.util.Date;
+import lombok.*;
 
-@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
+@ToString
+
 public class ChatMessage {
-    private MessageType type;
+    private String nickname;
     private String content;
-    private String sender;
+    private Date timestamp;
 
-    public enum MessageType {
-        CHAT,
-        JOIN,
-        LEAVE
-    }
-
-    public void setType(MessageType type) {
-        this.type = type;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
+    // Constructors, getters, and setters
 }
