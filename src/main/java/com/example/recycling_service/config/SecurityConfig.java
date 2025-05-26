@@ -63,13 +63,20 @@ public class SecurityConfig {
                                 "/api/advertisements", // Публичный доступ к списку объявлений
                                 "/api/advertisements/{id}", // Публичный доступ к конкретному объявлению
                                 "/api/advertisements/by-categories", // Публичный доступ к фильтрации по категориям
-                                "/api/user/{id}" // Публичный доступ к странце пользователя (без возможности изменений)
+                                "/api/user/{id}", // Публичный доступ к странце пользователя (без возможности изменений)
+                                "/api/recycling-points", // Публичный доступ к карте
+                                "/api/recycling-points/categories", // Публичный доступ к фильтрам
+                                "/api/recycling-points/{id}" // Публичный доступ детальной пункта
+
                         ).permitAll()
                         .requestMatchers(
                                 "/api/user/profile",
                                 "/api/advertisements/create",
                                 "/api/advertisements/update/**",
-                                "/api/advertisements/delete/**"
+                                "/api/advertisements/delete/**",
+                                "/app/**",
+                                "/ws/**",
+                                "/topic/**"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

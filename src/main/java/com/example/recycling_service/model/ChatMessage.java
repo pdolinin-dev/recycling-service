@@ -21,5 +21,8 @@ public class ChatMessage {
     private String content;
     private Date timestamp;
 
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
     // Constructors, getters, and setters
 }

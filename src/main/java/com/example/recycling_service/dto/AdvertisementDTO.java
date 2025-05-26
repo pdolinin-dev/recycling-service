@@ -36,6 +36,8 @@ public class AdvertisementDTO {
     @NotEmpty(message = "User cannot be empty")
     private Long userId;
 
+    private String address;
+
     // Конструктор для преобразования Entity -> DTO
     public AdvertisementDTO(Advertisement ad) {
         this.id = ad.getId();
@@ -53,5 +55,6 @@ public class AdvertisementDTO {
                         .collect(Collectors.toSet()) :
                 Collections.emptySet();
         this.userId = ad.getUser().getId();
+        this.address = ad.getAddress();
     }
 }

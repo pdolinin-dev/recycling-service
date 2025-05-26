@@ -3,20 +3,38 @@
 */
 package com.example.recycling_service.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import com.example.recycling_service.model.Type;
 
 @Data
 @Entity
+@Table(name = "recycling_point")
 public class RecyclingPoint {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
-    private String type;
+
+    @ManyToOne @JoinColumn(name = "id_type")
+    private Type type;
     private String address;
+
+    private double latitude;
+    private double longitude;
+
+    private String phone_number;
+
+    @ManyToMany
+    @JoinTable(
+            name = "point_categories",
+            joinColumns = @JoinColumn(name = "id_point"),
+            inverseJoinColumns = @JoinColumn(name = "id_category" , columnDefinition = "bigint")
+    )
+    private Set<Category> categories = new HashSet<>();
 }
