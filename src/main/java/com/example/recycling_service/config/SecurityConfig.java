@@ -66,17 +66,17 @@ public class SecurityConfig {
                                 "/api/user/{id}", // Публичный доступ к странце пользователя (без возможности изменений)
                                 "/api/recycling-points", // Публичный доступ к карте
                                 "/api/recycling-points/categories", // Публичный доступ к фильтрам
-                                "/api/recycling-points/{id}" // Публичный доступ детальной пункта
-
+                                "/api/recycling-points/{id}",// Публичный доступ детальной пункта
+                                "/ws/**",
+                                "/topic/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/user/profile",
                                 "/api/advertisements/create",
                                 "/api/advertisements/update/**",
                                 "/api/advertisements/delete/**",
-                                "/app/**",
-                                "/ws/**",
-                                "/topic/**"
+                                "/api/chat/**",
+                                "/app/**"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

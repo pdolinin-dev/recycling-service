@@ -4,25 +4,28 @@
 
 package com.example.recycling_service.model;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
-@ToString
-
+@Entity
+@Table(name = "messages")
 public class ChatMessage {
-    private String nickname;
-    private String content;
-    private Date timestamp;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="message_id")
+    private Long id;
 
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-    // Constructors, getters, and setters
+    @Column(name="listing_id", nullable = false)
+    private String chatId;
+
+    @Column(name="sender_id", nullable = false)
+    private Long sender;
+    private String content;
+
+    @CreationTimestamp
+    private LocalDateTime timestamp;
 }
