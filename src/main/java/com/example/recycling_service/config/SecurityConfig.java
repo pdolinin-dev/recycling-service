@@ -68,7 +68,8 @@ public class SecurityConfig {
                                 "/api/recycling-points/categories", // Публичный доступ к фильтрам
                                 "/api/recycling-points/{id}",// Публичный доступ детальной пункта
                                 "/ws/**",
-                                "/topic/**"
+                                "/topic/**",
+                                "/api/posts/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/user/profile",
