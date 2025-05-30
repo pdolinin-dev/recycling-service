@@ -15,7 +15,9 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -67,8 +69,8 @@ public class AdvertisementController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAdvertisement(
             @PathVariable Long id,
-            @AuthenticationPrincipal User currentUser) {
-        advertisementService.deleteAdvertisement(id, currentUser);
+            Authentication authentication) {
+        advertisementService.deleteAdvertisement(id, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 

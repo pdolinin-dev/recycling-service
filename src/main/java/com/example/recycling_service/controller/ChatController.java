@@ -38,6 +38,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import lombok.extern.slf4j.Slf4j;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -48,6 +49,7 @@ import java.util.Optional;
 import java.util.logging.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequestMapping("/api/chat")
 @Controller
 public class ChatController {
@@ -64,9 +66,10 @@ public class ChatController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/{chatId}/messages")
+    @GetMapping("/{chatId}/messages/{advertisementId}")
     public ResponseEntity<List<ChatMessage>> getChatMessages(
             @PathVariable String chatId,
+            @PathVariable Long advertisementId,
             Authentication authentication) throws BadRequestException {
 
         // 1. Проверяем формат chatId
@@ -86,8 +89,10 @@ public class ChatController {
         }
 
         // 4. Получаем сообщения
-        List<ChatMessage> messages = chatMessageRepository.findByChatIdOrderByTimestamp(chatId);
-
+        List<ChatMessage> messages = chatMessageRepository.findByChatIdAndAdvertisementIdAfterOrderByTimestamp(chatId, advertisementId);
+        log.info(chatId.toString());
+        log.info(advertisementId.toString());
+        log.info(messages.toString());
         return ResponseEntity.ok(messages);
     }
 

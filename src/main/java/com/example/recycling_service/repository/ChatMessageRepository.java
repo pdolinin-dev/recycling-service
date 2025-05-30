@@ -15,7 +15,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, String
     // Находим последнее сообщение в чате
     ChatMessage findTopByChatIdOrderByTimestampDesc(String chatId);
 
-    List<ChatMessage> findByChatIdOrderByTimestamp(String chatId);
+    @Query("SELECT DISTINCT m FROM ChatMessage m WHERE m.chatId = :chatId AND m.advertisementId = :advertisementId")
+    List<ChatMessage> findByChatIdAndAdvertisementIdAfterOrderByTimestamp(String chatId, Long advertisementId);
 
     @Query("SELECT DISTINCT m.chatId FROM ChatMessage m WHERE m.sender = :userId OR m.receiver = :userId")
     List<String> findDistinctChatIdsByUserId(@Param("userId") Long userId);
@@ -33,4 +34,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, String
             @Param("userId1") Long userId1,
             @Param("userId2") Long userId2
     );
+
+    List<ChatMessage> AdvertisementId(Long advertisementId);
 }

@@ -44,15 +44,15 @@ public class RecyclingPointController {
         return ResponseEntity.ok(recyclingPointDTO);
     }
 
+    //Добавление точки в базу
+    @PostMapping
+    public RecyclingPoint addPoint(@RequestBody RecyclingPoint point) {
+        return recyclingPointService.addPoint(point);
+    }
+
     // Получение точек по фильтру
 //    @GetMapping( "/filter")
 //    public List<RecyclingPoint> findByType(@RequestParam("type") String type) {
 //        //return recyclingPointService.findByType(type);
-//    }
-
-    // Добавление точки в базу
-//    @PostMapping
-//    public RecyclingPoint addPoint(@RequestBody RecyclingPoint point) {
-//        /return recyclingPointService.addPoint(point);
 //    }
 }

@@ -2,6 +2,7 @@ package com.example.recycling_service.dto;
 
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.AdvertisementImage;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +40,9 @@ public class AdvertisementDTO {
 
     private String address;
 
+    @JsonFormat(pattern = "dd.MM.yyyy")
+    private LocalDateTime createdAt;
+
     // Конструктор для преобразования Entity -> DTO
     public AdvertisementDTO(Advertisement ad) {
         this.id = ad.getId();
@@ -56,5 +61,6 @@ public class AdvertisementDTO {
                 Collections.emptySet();
         this.userId = ad.getUser().getId();
         this.address = ad.getAddress();
+        this.createdAt = ad.getCreatedAt();
     }
 }

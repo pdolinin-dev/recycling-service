@@ -8,9 +8,12 @@ import com.example.recycling_service.model.Category;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.CategoryRepository;
+import com.example.recycling_service.repository.UserRepository;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,8 +28,11 @@ import java.util.stream.Collectors;
 public class AdvertisementService {
     private final AdvertisementRepository advertisementRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+
     // Delete advetisement
-    public void deleteAdvertisement(Long id, User currentUser) {
+    public void deleteAdvertisement(Long id, String userName) {
+        User currentUser = userRepository.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Advertisement ad = advertisementRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
