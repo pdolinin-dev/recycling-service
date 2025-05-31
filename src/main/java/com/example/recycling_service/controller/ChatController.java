@@ -135,6 +135,7 @@ public class ChatController {
         chatMessage.setReceiver(chatMessage.getReceiver());
         chatMessage.setChatId(chatId);
         chatMessage.setTimestamp(LocalDateTime.now());
+        log.info(chatMessage.toString());
         chatMessage.setAdvertisementId(chatMessage.getAdvertisementId());
 
         return chatMessageRepository.save(chatMessage);

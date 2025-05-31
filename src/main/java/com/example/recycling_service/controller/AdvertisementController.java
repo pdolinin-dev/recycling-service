@@ -8,6 +8,7 @@ import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.Category;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.CategoryRepository;
+import com.example.recycling_service.repository.UserRepository;
 import com.example.recycling_service.service.AdvertisementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -36,6 +38,8 @@ import java.util.stream.Collectors;
 public class AdvertisementController {
     private final AdvertisementService advertisementService;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+
     @RestControllerAdvice
     public static class GlobalExceptionHandler {
 
@@ -96,9 +100,8 @@ public class AdvertisementController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AdvertisementDTO> createAdvertisement(
             @Valid @RequestBody CreateAdvertisementRequest request,
-            @AuthenticationPrincipal User currentUser) {
-
-        AdvertisementDTO createdAd = advertisementService.createAdvertisement(request, currentUser);
+            Authentication authentication) {
+        AdvertisementDTO createdAd = advertisementService.createAdvertisement(request, authentication.getName());
         return ResponseEntity.ok(createdAd);
     }
 

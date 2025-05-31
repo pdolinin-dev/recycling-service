@@ -4,6 +4,7 @@ import com.example.recycling_service.model.ChatMessage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -14,6 +15,14 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, String
     Page<ChatMessage> findByChatId(String chatId, Pageable pageable);
     // Находим последнее сообщение в чате
     ChatMessage findTopByChatIdOrderByTimestampDesc(String chatId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE ChatMessage m SET m.sender = :deletedUserId WHERE m.sender = :originalUserId")
+    void updateUserSenderReferencesToDeleted(@Param("originalUserId") Long originalUserId, @Param("deletedUserId") Long deletedUserId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE ChatMessage m SET m.receiver = :deletedUserId WHERE m.receiver = :originalUserId")
+    void updateUserReceiverReferencesToDeleted(@Param("originalUserId") Long originalUserId, @Param("deletedUserId") Long deletedUserId);
 
     @Query("SELECT DISTINCT m FROM ChatMessage m WHERE m.chatId = :chatId AND m.advertisementId = :advertisementId")
     List<ChatMessage> findByChatIdAndAdvertisementIdAfterOrderByTimestamp(String chatId, Long advertisementId);

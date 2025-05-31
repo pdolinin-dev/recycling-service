@@ -12,12 +12,14 @@ import com.example.recycling_service.repository.UserRepository;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 @Validated // Добавляем аннотацию для валидации на уровне сервиса
 public class AdvertisementService {
     private final AdvertisementRepository advertisementRepository;
+    @Autowired
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
@@ -75,6 +78,11 @@ public class AdvertisementService {
         if (request.getPrice() != null) {
             ad.setPrice(request.getPrice());
         }
+        if (request.getCategoryIds() != null) {
+            Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategoryIds()));
+            ad.setCategories(categories);
+        }
+
 
         Advertisement updatedAd = advertisementRepository.save(ad);
         return new AdvertisementDTO(updatedAd);
@@ -88,13 +96,8 @@ public class AdvertisementService {
     }
 
     // create new advertisement
-    public AdvertisementDTO createAdvertisement(CreateAdvertisementRequest request, User user) {
-        // Проверяем обязательные поля
-//        if (user == null) {
-//            throw new IllegalArgumentException("Authenticated user required");
-//        }
-
-        // Получаем категории из БД
+    public AdvertisementDTO createAdvertisement(CreateAdvertisementRequest request, String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Set<Category> categories = categoryRepository.findAllById(request.getCategoryIds())
                 .stream()
                 .collect(Collectors.toSet());

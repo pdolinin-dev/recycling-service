@@ -5,9 +5,7 @@ import com.example.recycling_service.model.User;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -58,15 +56,4 @@ public class UserProfileDto {
         this.role = role;
         this.advertisements = ads;
     }
-
-//    public UserProfileDto userProfileDto(User user) {
-//        this.id = user.getId();
-//        this.username = user.getUsername();
-//        this.email = user.getEmail();
-//        this.role = user.getRole();
-//        this.name = user.getName();
-//        this.createdAt = user.getCreatedAt();
-//        this.updatedAt = LocalDateTime.now();
-//        return this;
-//    };
 }

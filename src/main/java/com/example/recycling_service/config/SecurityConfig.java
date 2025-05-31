@@ -79,7 +79,8 @@ public class SecurityConfig {
                                 "/api/advertisements/update/**",
                                 "/api/advertisements/delete/**",
                                 "/api/chat/**",
-                                "/app/**"
+                                "/app/**",
+                                "/api/email/**"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )
