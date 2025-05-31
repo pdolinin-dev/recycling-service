@@ -9,8 +9,6 @@ import lombok.Data;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.example.recycling_service.model.Type;
-
 @Data
 @Entity
 @Table(name = "recycling_point")

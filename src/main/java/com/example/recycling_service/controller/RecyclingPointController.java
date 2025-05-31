@@ -50,6 +50,20 @@ public class RecyclingPointController {
         return recyclingPointService.addPoint(point);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<RecyclingPointDTO> updatePoint(@PathVariable Long id, @RequestBody RecyclingPointDTO dto) {
+        RecyclingPointDTO updated = recyclingPointService.updatePoint(id, dto);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePoint(@PathVariable Long id) {
+        recyclingPointService.deletePoint(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
     // Получение точек по фильтру
 //    @GetMapping( "/filter")
 //    public List<RecyclingPoint> findByType(@RequestParam("type") String type) {

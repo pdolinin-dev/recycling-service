@@ -4,6 +4,7 @@ import com.example.recycling_service.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -58,6 +59,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Добавляем CORS конфигурацию
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN") // Например, /api/admin/recycling-points
+
+                        // Удаление и редактирование чужих объявлений — только для админа
+                        .requestMatchers(HttpMethod.DELETE, "/api/advertisements/**").hasAnyRole("ADMIN", "PHYS")
+                        .requestMatchers(HttpMethod.PUT, "/api/advertisements/**").hasAnyRole("ADMIN", "PHYS")
+
+                        // Получение списка объявлений и деталей — доступно всем
+                        .requestMatchers(HttpMethod.GET, "/api/advertisements/**").permitAll()
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/swagger-ui/**",
