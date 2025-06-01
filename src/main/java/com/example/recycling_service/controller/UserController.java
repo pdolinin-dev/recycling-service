@@ -15,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -39,6 +41,17 @@ public class UserController {
         userRepository.delete(user);
         return ResponseEntity.noContent().build();
     }
+
+    @Transactional
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUserProfle(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        chatMessageRepository.updateUserSenderReferencesToDeleted(user.getId(), DELETED_USER_ID);
+        chatMessageRepository.updateUserReceiverReferencesToDeleted(user.getId(), DELETED_USER_ID);
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build();
+    }
+
 //    @GetMapping("/profile")
 //    public UserProfileDto getUserProfile(Authentication authentication) {
 //        // Временное решение - используем дефолтного пользователя, если аутентификация null
@@ -49,6 +62,11 @@ public class UserController {
     @GetMapping("/{id}")
     public UserProfileDto getUserProfile(@PathVariable Long id) {
         return userService.getUserProfileWithAdvertisements(id);
+    }
+
+    @GetMapping
+    public List<UserProfileDto> getUserProfiles(){
+        return userService.getUserProfiles();
     }
 
     @PutMapping(path="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

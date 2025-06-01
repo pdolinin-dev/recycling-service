@@ -64,9 +64,11 @@ public class SecurityConfig {
                         // Удаление и редактирование чужих объявлений — только для админа
                         .requestMatchers(HttpMethod.DELETE, "/api/advertisements/**").hasAnyRole("ADMIN", "PHYS")
                         .requestMatchers(HttpMethod.PUT, "/api/advertisements/**").hasAnyRole("ADMIN", "PHYS")
-
+                        .requestMatchers(HttpMethod.PUT, "/api/user/**").hasAnyRole("ADMIN", "PHYS")
                         // Получение списка объявлений и деталей — доступно всем
                         .requestMatchers(HttpMethod.GET, "/api/advertisements/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/user").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/user/{id}").permitAll()
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/swagger-ui/**",

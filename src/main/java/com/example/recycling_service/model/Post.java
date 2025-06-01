@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,13 +40,13 @@ public class Post {
     @Setter
     @CreationTimestamp
     @JsonFormat(pattern = "dd.MM.yyyy")
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 
     @Getter
     @Setter
     @UpdateTimestamp
     @JsonFormat(pattern = "dd.MM.yyyy")
-    private LocalDateTime updatedAt;
+    private LocalDate updatedAt;
 
     @Getter
     @Setter

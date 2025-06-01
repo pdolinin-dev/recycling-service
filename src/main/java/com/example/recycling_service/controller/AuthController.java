@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
     private final AuthenticationManager authenticationManager;
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -76,7 +75,7 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(
                 jwt,
                 authentication.getName(),
-                roles.isEmpty() ? "ROLE_USER" : roles.get(0)
+                roles.isEmpty() ? "ROLE_PHYS" : roles.get(0)
         ));
     }
 

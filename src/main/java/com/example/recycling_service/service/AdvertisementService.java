@@ -43,13 +43,9 @@ public class AdvertisementService {
                 ));
 
         // Проверяем, является ли текущий пользователь владельцем
-        if (!ad.getUser().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "Вы не можете удалить это объявление"
-            );
+        if (!ad.getUser().getId().equals(currentUser.getId()) && !currentUser.getRole().equals("admin")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Вы не можете удалить это объявление");
         }
-
         advertisementRepository.delete(ad);
     }
 

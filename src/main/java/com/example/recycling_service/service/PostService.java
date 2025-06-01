@@ -52,4 +52,21 @@ public class PostService {
                 endDateTime
         );
     }
+
+    public Post createPost(Post post) {
+        return postRepository.save(post);
+    }
+
+    public Post updatePost(Long id, Post updatedPost) {
+        Post existing = postRepository.findById(id).orElseThrow();
+        existing.setTitle(updatedPost.getTitle());
+        existing.setContent(updatedPost.getContent());
+        existing.setAuthor(updatedPost.getAuthor());
+        existing.setType(updatedPost.getType());
+        return postRepository.save(existing);
+    }
+
+    public void deletePost(Long id) {
+        postRepository.deleteById(id);
+    }
 }

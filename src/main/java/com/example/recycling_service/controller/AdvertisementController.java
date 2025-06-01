@@ -24,12 +24,16 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
+
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
+@Slf4j
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/advertisements")
@@ -74,6 +78,7 @@ public class AdvertisementController {
     public ResponseEntity<Void> deleteAdvertisement(
             @PathVariable Long id,
             Authentication authentication) {
+        log.info(authentication.getName());
         advertisementService.deleteAdvertisement(id, authentication.getName());
         return ResponseEntity.noContent().build();
     }

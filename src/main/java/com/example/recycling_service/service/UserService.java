@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -108,5 +109,26 @@ public class UserService implements UserDetailsService {
                 user.getRole(),
                 ads
         );
+    }
+
+    public List<UserProfileDto> getUserProfiles() {
+        List<User> users = userRepository.findAll();
+        List<UserProfileDto> userProfileDtos = new ArrayList<>(users.size());
+        for (User user : users) {
+            List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());
+            userProfileDtos.add(
+                    new UserProfileDto(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getCreatedAt(),
+                            user.getUpdatedAt(),
+                            user.getPassword(),
+                            user.getName(),
+                            user.getEmail(),
+                            user.getRole(),
+                            ads
+                    ));
+        }
+        return userProfileDtos;
     }
 }
