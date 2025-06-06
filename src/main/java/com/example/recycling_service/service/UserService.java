@@ -6,6 +6,7 @@ import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,8 @@ public class UserService implements UserDetailsService {
 
         List<Advertisement> ads = advertisementRepository.findByUserId(request.getId());
 
+        if (request.getAvatarPath() != null) user.setAvatarPath(request.getAvatarPath());
+
         User updatedUser = userRepository.save(user);
 
         return new UserProfileDto(
@@ -57,7 +60,8 @@ public class UserService implements UserDetailsService {
                 updatedUser.getName(),
                 updatedUser.getEmail(),
                 updatedUser.getRole(),
-                ads
+                ads,
+                updatedUser.getAvatarPath()
         );
     }
 
@@ -88,7 +92,8 @@ public class UserService implements UserDetailsService {
                 user.getName(),
                 user.getEmail(),
                 user.getRole(),
-                ads
+                ads,
+                user.getAvatarPath()
         );
     }
 
@@ -107,7 +112,8 @@ public class UserService implements UserDetailsService {
                 user.getName(),
                 user.getEmail(),
                 user.getRole(),
-                ads
+                ads,
+                user.getAvatarPath()
         );
     }
 
@@ -126,9 +132,35 @@ public class UserService implements UserDetailsService {
                             user.getName(),
                             user.getEmail(),
                             user.getRole(),
-                            ads
+                            ads,
+                            user.getAvatarPath()
                     ));
         }
         return userProfileDtos;
+    }
+
+    @Transactional
+    public UserProfileDto updateAvatar(Long userId, String avatarPath) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        user.setAvatarPath(avatarPath);
+        return toUserProfileDto(userRepository.save(user));
+    }
+
+    private UserProfileDto toUserProfileDto(User user) {
+        List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());
+        UserProfileDto dto = new UserProfileDto(
+                user.getId(),
+                user.getUsername(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getPassword(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole(),
+                ads,
+                user.getAvatarPath()
+        );
+        return dto;
     }
 }

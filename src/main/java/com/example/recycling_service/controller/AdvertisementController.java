@@ -6,10 +6,13 @@ import com.example.recycling_service.dto.CreateAdvertisementRequest;
 import com.example.recycling_service.dto.UpdateAdvertisementRequest;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.Category;
+import com.example.recycling_service.model.PostImage;
 import com.example.recycling_service.model.User;
+import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.CategoryRepository;
 import com.example.recycling_service.repository.UserRepository;
 import com.example.recycling_service.service.AdvertisementService;
+import com.example.recycling_service.service.ImageStorageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -25,8 +28,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +49,8 @@ public class AdvertisementController {
     private final AdvertisementService advertisementService;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final AdvertisementRepository advertisementRepository;
+    private final ImageStorageService imageStorageService;
 
     @RestControllerAdvice
     public static class GlobalExceptionHandler {
@@ -83,6 +91,31 @@ public class AdvertisementController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/advertisements/{id}/images")
+    public ResponseEntity<?> uploadAdImage(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file
+    ) {
+        try {
+            String fileName = imageStorageService.store(file);
+            Advertisement ad = advertisementRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Ad not found"));
+
+            PostImage image = new PostImage();
+            image.setFilePath("/uploads/" + fileName);
+            image.setMimeType(file.getContentType());
+            ad.getImages().add(image);
+            advertisementRepository.save(ad);
+
+            return ResponseEntity.ok().body(image.getFilePath());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload failed: " + e.getMessage());
+        }
+    }
+
+
+
+
     //Change data in advertisement
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AdvertisementDTO> updateAdvertisement(@PathVariable Long id, @Valid @RequestBody UpdateAdvertisementRequest request) {
@@ -90,25 +123,61 @@ public class AdvertisementController {
         return ResponseEntity.ok(updatedAd);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AdvertisementDTO> getAdvertisementById(@PathVariable Long id) {
-        AdvertisementDTO advertisementDTO = advertisementService.getAdvertisementById(id);
-        return ResponseEntity.ok(advertisementDTO);
-    }
-
-    //Get advertisements
     @GetMapping
     public ResponseEntity<List<AdvertisementDTO>> getAllAdvertisements() {
-        return ResponseEntity.ok(advertisementService.getAllAdvertisements());
+        List<Advertisement> ads = advertisementRepository.findAll(); // или через сервис
+        List<AdvertisementDTO> result = ads.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
     }
+
+    private AdvertisementDTO mapToDTO(Advertisement ad) {
+        AdvertisementDTO dto = new AdvertisementDTO();
+        dto.setId(ad.getId());
+        dto.setTitle(ad.getTitle());
+        dto.setDescription(ad.getDescription());
+        dto.setPrice(ad.getPrice());
+        dto.setAddress(ad.getAddress());
+        dto.setCategories(ad.getCategories() != null ?
+                ad.getCategories().stream()
+                        .map(CategoryRequest::new)
+                        .collect(Collectors.toSet()) :
+                Collections.emptySet());
+        dto.setUserId(ad.getUser().getId());
+        dto.setCreatedAt(ad.getCreatedAt());
+
+        // Добавляем пути к изображениям
+        if (ad.getImages() != null) {
+            List<String> imageUrls = ad.getImages().stream()
+                    .map(image -> "http://localhost:8080" + image.getFilePath())
+                    .collect(Collectors.toList());
+            dto.setImageUrls(imageUrls);
+        }
+
+        return dto;
+    }
+
     //add new advertisement
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdvertisementDTO> createAdvertisement(
-            @Valid @RequestBody CreateAdvertisementRequest request,
-            Authentication authentication) {
-        AdvertisementDTO createdAd = advertisementService.createAdvertisement(request, authentication.getName());
+            @RequestPart("data") @Valid CreateAdvertisementRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            Authentication authentication) throws IOException {
+
+        AdvertisementDTO createdAd = advertisementService.createAdvertisementWithImages(
+                request, files, authentication.getName());
         return ResponseEntity.ok(createdAd);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AdvertisementDTO> getAdvertisementById(@PathVariable Long id) {
+        Advertisement ad = advertisementRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+        return ResponseEntity.ok(mapToDTO(ad));
+    }
+
 
     // Добавляем обработчик исключений валидации
     @ExceptionHandler(MethodArgumentNotValidException.class)

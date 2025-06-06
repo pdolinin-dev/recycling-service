@@ -5,6 +5,7 @@ import com.example.recycling_service.dto.CreateAdvertisementRequest;
 import com.example.recycling_service.dto.UpdateAdvertisementRequest;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.Category;
+import com.example.recycling_service.model.PostImage;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.CategoryRepository;
@@ -17,10 +18,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,6 +36,8 @@ public class AdvertisementService {
     @Autowired
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final ImageStorageService imageStorageService;
+
 
     // Delete advetisement
     public void deleteAdvertisement(Long id, String userName) {
@@ -83,6 +89,27 @@ public class AdvertisementService {
         Advertisement updatedAd = advertisementRepository.save(ad);
         return new AdvertisementDTO(updatedAd);
     }
+
+    private AdvertisementDTO mapToDTO(Advertisement ad) {
+        AdvertisementDTO dto = new AdvertisementDTO();
+        dto.setId(ad.getId());
+        dto.setTitle(ad.getTitle());
+        dto.setDescription(ad.getDescription());
+        dto.setPrice(ad.getPrice());
+        dto.setAddress(ad.getAddress());
+
+        // Добавляем пути к изображениям
+        if (ad.getImages() != null) {
+            List<String> imageUrls = ad.getImages().stream()
+                    .map(image -> "http://localhost:8080" + image.getFilePath())
+                    .collect(Collectors.toList());
+            dto.setImageUrls(imageUrls);
+        }
+
+        return dto;
+    }
+
+
     // get all advertisements
     public List<AdvertisementDTO> getAllAdvertisements() {
         return advertisementRepository.findAllByOrderByCreatedAtDesc()
@@ -90,6 +117,29 @@ public class AdvertisementService {
                 .map(AdvertisementDTO::new)
                 .collect(Collectors.toList());
     }
+
+    public AdvertisementDTO createAdvertisementWithImages(CreateAdvertisementRequest request, List<MultipartFile> files, String username) throws IOException {
+        AdvertisementDTO created = createAdvertisement(request, username);
+
+        if (files != null && !files.isEmpty()) {
+            Advertisement ad = advertisementRepository.findById(created.getId())
+                    .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+
+            for (MultipartFile file : files) {
+                String fileName = imageStorageService.store(file);
+                PostImage image = new PostImage();
+                image.setFilePath("/uploads/" + fileName);
+                image.setMimeType(file.getContentType());
+                image.setAdvertisement(ad); // <--- не забудь связать
+                ad.getImages().add(image);
+            }
+
+            advertisementRepository.save(ad);
+        }
+
+        return created;
+    }
+
 
     // create new advertisement
     public AdvertisementDTO createAdvertisement(CreateAdvertisementRequest request, String username) {

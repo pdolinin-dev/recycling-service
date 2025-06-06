@@ -39,9 +39,6 @@ public class Advertisement {
 
     private String address;
 
-    @OneToMany(mappedBy = "advertisement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AdvertisementImage> images = new ArrayList<>();
-
     @ManyToMany
     @JoinTable(
             name = "advertisement_categories",
@@ -50,4 +47,7 @@ public class Advertisement {
     )
     @NotEmpty(message = "At least 1 category")
     private Set<Category> categories = new HashSet<>();
+
+    @OneToMany(mappedBy = "advertisement", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostImage> images = new ArrayList<>();
 }

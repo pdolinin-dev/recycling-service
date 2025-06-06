@@ -1,7 +1,14 @@
 package com.example.recycling_service.model;
 
-import jakarta.persistence.*;
+import com.example.recycling_service.model.Advertisement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "media_files")
 public class PostImage {
@@ -12,9 +19,15 @@ public class PostImage {
     @Column(name="file_path")
     private String filePath;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 
-    // Геттеры и сеттеры
+    private String mimeType;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "advertisement_id")
+    private Advertisement advertisement;
 }

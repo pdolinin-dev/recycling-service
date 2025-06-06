@@ -62,9 +62,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Например, /api/admin/recycling-points
 
                         // Удаление и редактирование чужих объявлений — только для админа
-                        .requestMatchers(HttpMethod.DELETE, "/api/advertisements/**").hasAnyRole("ADMIN", "PHYS")
-                        .requestMatchers(HttpMethod.PUT, "/api/advertisements/**").hasAnyRole("ADMIN", "PHYS")
-                        .requestMatchers(HttpMethod.PUT, "/api/user/**").hasAnyRole("ADMIN", "PHYS")
+                        .requestMatchers(HttpMethod.DELETE, "/api/advertisements/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/advertisements/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/user/**").permitAll()
                         // Получение списка объявлений и деталей — доступно всем
                         .requestMatchers(HttpMethod.GET, "/api/advertisements/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/user").permitAll()
@@ -82,7 +82,9 @@ public class SecurityConfig {
                                 "/api/recycling-points/{id}",// Публичный доступ детальной пункта
                                 "/ws/**",
                                 "/topic/**",
-                                "/api/posts/**"
+                                "/api/posts/**",
+                                "/uploads/**"
+
                         ).permitAll()
                         .requestMatchers(
                                 "/api/user/profile",

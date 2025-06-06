@@ -45,7 +45,9 @@ public class UserProfileDto {
     private String role;
     private List<Advertisement> advertisements;
 
-    public UserProfileDto(Long id, String username, LocalDateTime createdAt, LocalDateTime updatedAt, String password, String name, String email, String role, List<Advertisement> ads) {
+    private String avatarPath;
+
+    public UserProfileDto(Long id, String username, LocalDateTime createdAt, LocalDateTime updatedAt, String password, String name, String email, String role, List<Advertisement> ads, String avatarPath) {
         this.id = id;
         this.username = username;
         this.name = name;
@@ -55,5 +57,6 @@ public class UserProfileDto {
         this.email = email;
         this.role = role;
         this.advertisements = ads;
+        this.avatarPath = avatarPath;
     }
 }

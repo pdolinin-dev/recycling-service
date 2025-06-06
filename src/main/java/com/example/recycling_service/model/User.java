@@ -57,4 +57,7 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "avatar_path")
+    private String avatarPath;
 }

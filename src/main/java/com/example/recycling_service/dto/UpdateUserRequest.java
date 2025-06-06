@@ -39,4 +39,5 @@ public class UpdateUserRequest {
 
     private List<Advertisement> advertisements;
 
+    private String avatarPath;
 }

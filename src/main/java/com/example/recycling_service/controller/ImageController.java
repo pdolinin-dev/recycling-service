@@ -2,6 +2,7 @@ package com.example.recycling_service.controller;
 
 import com.example.recycling_service.model.Post;
 import com.example.recycling_service.model.PostImage;
+import com.example.recycling_service.repository.PostImageRepository;
 import com.example.recycling_service.repository.PostRepository;
 import com.example.recycling_service.service.ImageStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class ImageController {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private PostImageRepository postImageRepository;
 
     @Value("${upload.path}")
     private String uploadPath;
@@ -57,5 +61,16 @@ public class ImageController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при сохранении файла");
         }
     }
+
+    @PostMapping("/upload-avatar")
+    public ResponseEntity<String> uploadAvatar(@RequestParam("file") MultipartFile file) {
+        try {
+            String filename = imageStorageService.store(file);
+            return ResponseEntity.ok("/uploads/" + filename);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 
 }
