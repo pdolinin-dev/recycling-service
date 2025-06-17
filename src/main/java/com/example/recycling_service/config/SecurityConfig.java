@@ -83,6 +83,7 @@ public class SecurityConfig {
                                 "/ws/**",
                                 "/topic/**",
                                 "/api/posts/**",
+                                "/images/**",
                                 "/uploads/**"
 
                         ).permitAll()

@@ -140,46 +140,6 @@ public class ChatController {
 
         return chatMessageRepository.save(chatMessage);
     }
-//@MessageMapping("/chat.send/{chatId}")
-//@SendTo("/topic/chat/{chatId}")
-//public ChatMessage sendMessage(
-//        @Payload Map<String, Object> payload,
-//        @DestinationVariable String chatId,
-//        SimpMessageHeaderAccessor headerAccessor) throws BadRequestException {
-//
-//    // Проверка аутентификации
-//    String token = headerAccessor.getFirstNativeHeader("Authorization");
-//    if (token == null || !token.startsWith("Bearer ")) {
-//        throw new SecurityException("Missing token");
-//    }
-//
-//    String username = jwtTokenProvider.getUsernameFromToken(token.substring(7));
-//    User sender = userRepository.findByUsername(username)
-//            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//
-//    // Разбираем chatId
-//    String[] userIds = chatId.split("_");
-//    if (userIds.length != 2) {
-//        throw new BadRequestException("Invalid chat ID format");
-//    }
-//
-//    Long userId1 = Long.parseLong(userIds[0]);
-//    Long userId2 = Long.parseLong(userIds[1]);
-//
-//    // Проверяем, что отправитель - участник чата
-//    if (!sender.getId().equals(userId1) && !sender.getId().equals(userId2)) {
-//        throw new AccessDeniedException("You can't send messages to this chat");
-//    }
-//
-//    // Создаем и сохраняем сообщение
-//    ChatMessage message = new ChatMessage();
-//    message.setSender(sender.getId());
-//    message.setReceiver(sender.getId().equals(userId1) ? userId2 : userId1);
-//    message.setContent((String) payload.get("content"));
-//    message.setTimestamp(LocalDateTime.now());
-//
-//    return chatMessageRepository.save(message);
-//}
 
     // REST endpoint for chat initialization
     @GetMapping("/chat/{chatId}")
@@ -213,7 +173,7 @@ public class ChatController {
                             chatId,
                             interlocutor.getId(),
                             interlocutor.getUsername(),
-                            // interlocutor.getAvatarUrl(), // раскомментируйте, если есть поле avatarUrl
+                            interlocutor.getName(),
                             lastMessage != null ? lastMessage.getContent() : null,
                             lastMessage != null ? lastMessage.getTimestamp() : null,
                             lastMessage != null ? lastMessage.getAdvertisementId() : null

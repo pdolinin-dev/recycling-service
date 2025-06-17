@@ -67,12 +67,6 @@ public class AdvertisementController {
             return ResponseEntity.badRequest().body(errors);
         }
     }
-
-    /**
-     * Получение объявлений по списку категорий.
-     * @param request DTO с названиями категорий.
-     * @return Список объявлений, относящихся к указанным категориям.
-     */
     @PostMapping("/by-categories")
     public ResponseEntity<List<Advertisement>> getByCategories(
             @RequestBody List<Long> categoryIds) {
