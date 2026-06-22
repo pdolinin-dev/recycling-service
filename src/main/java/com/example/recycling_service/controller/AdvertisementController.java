@@ -1,13 +1,12 @@
 package com.example.recycling_service.controller;
 
 import com.example.recycling_service.dto.AdvertisementDTO;
-import com.example.recycling_service.dto.CategoryRequest;
-import com.example.recycling_service.dto.CreateAdvertisementRequest;
-import com.example.recycling_service.dto.UpdateAdvertisementRequest;
+import com.example.recycling_service.dto.Request.CategoryRequest;
+import com.example.recycling_service.dto.Request.CreateAdvertisementRequest;
+import com.example.recycling_service.dto.Request.UpdateAdvertisementRequest;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.Category;
 import com.example.recycling_service.model.PostImage;
-import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.CategoryRepository;
 import com.example.recycling_service.repository.UserRepository;
@@ -20,9 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -32,10 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -78,7 +71,7 @@ public class AdvertisementController {
     //Delete advetrisement
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAdvertisement(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Authentication authentication) {
         log.info(authentication.getName());
         advertisementService.deleteAdvertisement(id, authentication.getName());
@@ -87,7 +80,7 @@ public class AdvertisementController {
 
     @PostMapping("/advertisements/{id}/images")
     public ResponseEntity<?> uploadAdImage(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestParam("file") MultipartFile file
     ) {
         try {
@@ -112,7 +105,7 @@ public class AdvertisementController {
 
     //Change data in advertisement
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AdvertisementDTO> updateAdvertisement(@PathVariable Long id, @Valid @RequestBody UpdateAdvertisementRequest request) {
+    public ResponseEntity<AdvertisementDTO> updateAdvertisement(@PathVariable UUID id, @Valid @RequestBody UpdateAdvertisementRequest request) {
         AdvertisementDTO updatedAd = advertisementService.updateAdvertisement(id, request);
         return ResponseEntity.ok(updatedAd);
     }
@@ -166,7 +159,7 @@ public class AdvertisementController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AdvertisementDTO> getAdvertisementById(@PathVariable Long id) {
+    public ResponseEntity<AdvertisementDTO> getAdvertisementById(@PathVariable UUID id) {
         Advertisement ad = advertisementRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
         return ResponseEntity.ok(mapToDTO(ad));

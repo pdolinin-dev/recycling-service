@@ -6,17 +6,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Boolean existsByUsername(String username);
+    Boolean existsByUsername(String login);
     Boolean existsByEmail(String email);
     //Boolean existsByUserId(String userId);
     User save(User user);
 
-    @Query("SELECT u FROM User u WHERE u.username = :username")
-    Optional<User> findByUsername(@Param("username") String username);
+    @Query("SELECT u FROM User u WHERE u.login = :login")
+    Optional<User> findByUsername(@Param("login") String login);
 
     @Query("SELECT u FROM User u WHERE u.id = :userId")
-    Optional<User> findByUserId(@Param("userId") Long userId);
+    Optional<User> findByUserId(@Param("userId") UUID userId);
 }

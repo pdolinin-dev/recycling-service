@@ -1,15 +1,16 @@
 package com.example.recycling_service.controller;
 
-import com.example.recycling_service.dto.JwtResponse;
-import com.example.recycling_service.dto.LoginRequest;
-import com.example.recycling_service.dto.RegisterRequest;
+import com.example.recycling_service.dto.Response.JwtResponse;
+import com.example.recycling_service.dto.Request.LoginRequest;
+import com.example.recycling_service.dto.Request.RegisterRequest;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.security.JwtTokenProvider;
 import com.example.recycling_service.service.AuthService;
 import com.example.recycling_service.service.TokenService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.authentication.AuthenticationServiceException;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         // 1. Аутентификация пользователя
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -71,18 +71,26 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        // 5. Возврат ответа с токеном
-        return ResponseEntity.ok(new JwtResponse(
-                jwt,
+        Cookie accessTokenCookie = new Cookie("token_v1", jwt);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(60*15);
+        accessTokenCookie.setAttribute("SameSite", "Strict");
+
+        response.addCookie(accessTokenCookie);
+        return ResponseEntity.ok(
+            new JwtResponse(
                 authentication.getName(),
-                roles.isEmpty() ? "ROLE_PHYS" : roles.get(0)
-        ));
+                roles.get(0)
+            )
+        );
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         try {
-            if (authService.existsByUsername(registerRequest.getUsername())) {
+            if (authService.existsByUsername(registerRequest.getLogin())) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(Map.of(
                                 "status", "error",
@@ -106,7 +114,7 @@ public class AuthController {
             // Аутентифицируем с оригинальным паролем из запроса
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            registerRequest.getUsername(),
+                            registerRequest.getLogin(),
                             registerRequest.getPassword()
                     )
             );
@@ -116,7 +124,7 @@ public class AuthController {
             // Генерация токена
             String jwt = jwtTokenProvider.generateToken(authentication.getName());
 
-            // Получение ролей (гарантируем хотя бы ROLE_USER)
+            // Получение ролей
             List<String> roles = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
@@ -125,11 +133,21 @@ public class AuthController {
                 roles = List.of("ROLE_USER");
             }
 
+            // Генерируем куку с токеном
+            final Cookie accessTokenCookie = new Cookie("token_v1", jwt);
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(true);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge(60*15);
+            accessTokenCookie.setAttribute("SameSite", "Strict");
+
+            response.addCookie(accessTokenCookie);
+
             return ResponseEntity.ok(new JwtResponse(
-                    jwt,
                     authentication.getName(),
                     roles.get(0)
-            ));
+            )
+        );
 
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ошибка аутентификации");

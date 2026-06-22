@@ -5,18 +5,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public class ChatDto {
     private String chatId;
-    private Long interlocutorId;
+    private UUID interlocutorId;
     private String interlocutorName;
     private String interFullName;
     private String lastMessage;
     private LocalDateTime lastMessageTime;
     private Long advertisementId;
 
-    public ChatDto(String chatId, Long interlocutorId, String interlocutorName, String interFullName, String lastMessage, LocalDateTime lastMessageTime, Long advertisementId) {
+    public ChatDto(String chatId, UUID interlocutorId, String interlocutorName,
+                   String interFullName, String lastMessage,
+                   LocalDateTime lastMessageTime, Long advertisementId) {
         this.chatId = chatId;
         this.interlocutorId = interlocutorId;
         this.interlocutorName = interlocutorName;

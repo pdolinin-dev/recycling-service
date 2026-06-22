@@ -1,4 +1,4 @@
-package com.example.recycling_service.dto;
+package com.example.recycling_service.dto.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 
 @Data
@@ -26,7 +27,7 @@ public class CreateAdvertisementRequest {
     private BigDecimal price;
 
     @NotEmpty
-    private Set<Long> categoryIds;
+    private Set<UUID> categoryIds;
 
     private List<String> imageUrls;
 }

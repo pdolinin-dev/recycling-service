@@ -1,5 +1,6 @@
 package com.example.recycling_service.dto;
 
+import com.example.recycling_service.dto.Request.CategoryRequest;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.PostImage;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -11,17 +12,14 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdvertisementDTO {
-    private Long id;
+    private UUID id;
 
     @NotBlank(message = "Title cannot be blank")
     private String title;
@@ -37,7 +35,7 @@ public class AdvertisementDTO {
     private Set<CategoryRequest> categories;
 
     @NotEmpty(message = "User cannot be empty")
-    private Long userId;
+    private UUID userId;
 
     private String address;
 

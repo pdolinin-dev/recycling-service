@@ -1,4 +1,4 @@
-package com.example.recycling_service.dto;
+package com.example.recycling_service.dto.Request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +9,7 @@ import lombok.Data;
 public class RegisterRequest {
     @NotBlank
     @Size(min = 3, max = 20)
-    private String username;
+    private String login;
 
     @NotBlank
     @Size(min = 6, max = 40)

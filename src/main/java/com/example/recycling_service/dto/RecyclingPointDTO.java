@@ -3,9 +3,7 @@
 */
 package com.example.recycling_service.dto;
 
-import com.example.recycling_service.model.Advertisement;
-import com.example.recycling_service.model.AdvertisementImage;
-import com.example.recycling_service.model.Category;
+import com.example.recycling_service.dto.Request.CategoryRequest;
 import com.example.recycling_service.model.RecyclingPoint;
 import com.example.recycling_service.model.Type;
 

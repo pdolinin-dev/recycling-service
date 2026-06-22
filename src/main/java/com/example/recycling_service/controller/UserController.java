@@ -1,14 +1,16 @@
 package com.example.recycling_service.controller;
 
-import com.example.recycling_service.dto.UpdateUserRequest;
+import com.example.recycling_service.dto.Request.UpdateUserRequest;
 import com.example.recycling_service.dto.UserProfileDto;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.ChatMessageRepository;
 import com.example.recycling_service.repository.UserRepository;
 import com.example.recycling_service.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -25,11 +28,16 @@ public class UserController {
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    private static final Long DELETED_USER_ID = 27L;
+    private static final UUID DELETED_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     @GetMapping("/profile")
-    public UserProfileDto getUserProfile(Authentication authentication) {
-        return userService.getUserProfileWithAdvertisements(authentication.getName());
+    public UserProfileDto getUserProfile(Authentication authentication, HttpServletResponse response) {
+        try {
+            return userService.getUserProfileWithAdvertisements(authentication.getName());
+        } catch (NullPointerException e) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return null;
+        }
     }
 
     @Transactional
@@ -60,7 +68,7 @@ public class UserController {
 //    }
 
     @GetMapping("/{id}")
-    public UserProfileDto getUserProfile(@PathVariable Long id) {
+    public UserProfileDto getUserProfile(@PathVariable UUID id) {
         return userService.getUserProfileWithAdvertisements(id);
     }
 

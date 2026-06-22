@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, String> {
     Page<ChatMessage> findByChatId(String chatId, Pageable pageable);
@@ -18,21 +19,21 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, String
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE ChatMessage m SET m.sender = :deletedUserId WHERE m.sender = :originalUserId")
-    void updateUserSenderReferencesToDeleted(@Param("originalUserId") Long originalUserId, @Param("deletedUserId") Long deletedUserId);
+    void updateUserSenderReferencesToDeleted(@Param("originalUserId") UUID originalUserId, @Param("deletedUserId") UUID deletedUserId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE ChatMessage m SET m.receiver = :deletedUserId WHERE m.receiver = :originalUserId")
-    void updateUserReceiverReferencesToDeleted(@Param("originalUserId") Long originalUserId, @Param("deletedUserId") Long deletedUserId);
+    void updateUserReceiverReferencesToDeleted(@Param("originalUserId") UUID originalUserId, @Param("deletedUserId") UUID deletedUserId);
 
     @Query("SELECT DISTINCT m FROM ChatMessage m WHERE m.chatId = :chatId AND m.advertisementId = :advertisementId")
     List<ChatMessage> findByChatIdAndAdvertisementIdAfterOrderByTimestamp(String chatId, Long advertisementId);
 
     @Query("SELECT DISTINCT m.chatId FROM ChatMessage m WHERE m.sender = :userId OR m.receiver = :userId")
-    List<String> findDistinctChatIdsByUserId(@Param("userId") Long userId);
+    List<String> findDistinctChatIdsByUserId(@Param("userId") UUID userId);
     // Находим всех уникальных собеседников для пользователя
     @Query("SELECT DISTINCT CASE WHEN m.sender = :userId THEN m.receiver ELSE m.sender END " +
             "FROM ChatMessage m WHERE m.sender = :userId OR m.receiver = :userId")
-    List<Long> findDistinctInterlocutors(@Param("userId") Long userId);
+    List<Long> findDistinctInterlocutors(@Param("userId") UUID userId);
 
     // Находим последнее сообщение между двумя пользователями
     @Query("SELECT m FROM ChatMessage m WHERE " +
@@ -40,8 +41,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, String
             "(m.sender = :userId2 AND m.receiver = :userId1) " +
             "ORDER BY m.timestamp DESC LIMIT 1")
     Optional<ChatMessage> findLastMessageBetweenUsers(
-            @Param("userId1") Long userId1,
-            @Param("userId2") Long userId2
+            @Param("userId1") UUID userId1,
+            @Param("userId2") UUID userId2
     );
 
     List<ChatMessage> AdvertisementId(Long advertisementId);

@@ -1,6 +1,7 @@
 package com.example.recycling_service.dto;
 
 import com.example.recycling_service.model.Advertisement;
+import com.example.recycling_service.model.Enum.Role;
 import com.example.recycling_service.model.User;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
@@ -13,18 +14,19 @@ import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 //@NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Data
 public class UserProfileDto {
 
     @NotNull
-    private Long id;
+    private UUID id;
 
     @NotBlank
-    private String username;
+    private String login;
 
     @NotBlank
     private String name;
@@ -42,14 +44,17 @@ public class UserProfileDto {
     private String email;
 
     @NotBlank
-    private String role;
+    private Role role;
+
     private List<Advertisement> advertisements;
 
-    private String avatarPath;
+//    private String avatarPath;
 
-    public UserProfileDto(Long id, String username, LocalDateTime createdAt, LocalDateTime updatedAt, String password, String name, String email, String role, List<Advertisement> ads, String avatarPath) {
+    public UserProfileDto(UUID id, String login, String name, LocalDateTime createdAt,
+                          LocalDateTime updatedAt, String password,
+                          String email, Role role, List<Advertisement> ads) {
         this.id = id;
-        this.username = username;
+        this.login = login;
         this.name = name;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -57,6 +62,6 @@ public class UserProfileDto {
         this.email = email;
         this.role = role;
         this.advertisements = ads;
-        this.avatarPath = avatarPath;
+//        this.avatarPath = avatarPath;
     }
 }

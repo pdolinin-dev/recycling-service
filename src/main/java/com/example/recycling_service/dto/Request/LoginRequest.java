@@ -1,4 +1,4 @@
-package com.example.recycling_service.dto;
+package com.example.recycling_service.dto.Request;
 
 import lombok.Data;
 

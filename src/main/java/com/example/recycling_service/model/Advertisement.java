@@ -5,19 +5,19 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
+import javax.print.attribute.standard.Media;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Data
+@Table(name = "advertisement")
 public class Advertisement {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @NotBlank(message = "Title cannot be blank")
     @Column(nullable = false)
@@ -33,6 +33,9 @@ public class Advertisement {
     @Column(nullable = false, name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(nullable = false, name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
@@ -41,13 +44,18 @@ public class Advertisement {
 
     @ManyToMany
     @JoinTable(
-            name = "advertisement_categories",
+            name = "advertisement_category",
             joinColumns = @JoinColumn(name = "advertisement_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id" , columnDefinition = "bigint")
+            inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     @NotEmpty(message = "At least 1 category")
     private Set<Category> categories = new HashSet<>();
 
-    @OneToMany(mappedBy = "advertisement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostImage> images = new ArrayList<>();
+    @OneToMany
+    @JoinTable(
+            name = "advertisement_media",
+            joinColumns = @JoinColumn(name = "advertisement_id"),
+            inverseJoinColumns = @JoinColumn(name = "media_id")
+    )
+    private Set<Media> media = new HashSet<>();
 }

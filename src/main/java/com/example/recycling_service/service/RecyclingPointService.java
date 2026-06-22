@@ -81,7 +81,8 @@ public class RecyclingPointService {
         if (dto.getCategories() != null) {
             Set<Category> categories = dto.getCategories().stream()
                     .map(catDto -> categoryRepository.findById(catDto.getId())
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Категория не найдена: id " + catDto.getId())))
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                    "Категория не найдена: id " + catDto.getId())))
                     .collect(Collectors.toSet());
             point.setCategories(categories);
         }

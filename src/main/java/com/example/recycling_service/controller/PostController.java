@@ -1,16 +1,14 @@
 package com.example.recycling_service.controller;
 
-import com.example.recycling_service.dto.PostFilterRequest;
+import com.example.recycling_service.dto.Request.PostFilterRequest;
 import com.example.recycling_service.model.Post;
 import com.example.recycling_service.service.PostService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

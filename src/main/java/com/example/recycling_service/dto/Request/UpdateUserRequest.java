@@ -1,13 +1,13 @@
-package com.example.recycling_service.dto;
+package com.example.recycling_service.dto.Request;
 
 import com.example.recycling_service.model.Advertisement;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class UpdateUserRequest {
@@ -15,7 +15,7 @@ public class UpdateUserRequest {
     @Getter
     @Setter
     @NotNull
-    private Long id;
+    private UUID id;
 
     @Getter
     @Setter

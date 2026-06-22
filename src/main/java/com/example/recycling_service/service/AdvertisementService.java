@@ -1,11 +1,11 @@
 package com.example.recycling_service.service;
 
 import com.example.recycling_service.dto.AdvertisementDTO;
-import com.example.recycling_service.dto.CreateAdvertisementRequest;
-import com.example.recycling_service.dto.UpdateAdvertisementRequest;
+import com.example.recycling_service.dto.Request.CreateAdvertisementRequest;
+import com.example.recycling_service.dto.Request.UpdateAdvertisementRequest;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.Category;
-import com.example.recycling_service.model.PostImage;
+import com.example.recycling_service.model.Media;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.CategoryRepository;
@@ -24,8 +24,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +40,7 @@ public class AdvertisementService {
 
 
     // Delete advetisement
-    public void deleteAdvertisement(Long id, String userName) {
+    public void deleteAdvertisement(UUID id, String userName) {
         User currentUser = userRepository.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Advertisement ad = advertisementRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -63,7 +63,7 @@ public class AdvertisementService {
     }
 
     //update Advertesiment
-    public AdvertisementDTO updateAdvertisement(Long id, @Valid UpdateAdvertisementRequest request) {
+    public AdvertisementDTO updateAdvertisement(UUID id, @Valid UpdateAdvertisementRequest request) {
         Advertisement ad = advertisementRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -99,11 +99,11 @@ public class AdvertisementService {
         dto.setAddress(ad.getAddress());
 
         // Добавляем пути к изображениям
-        if (ad.getImages() != null) {
-            List<String> imageUrls = ad.getImages().stream()
-                    .map(image -> "http://localhost:8080" + image.getFilePath())
-                    .collect(Collectors.toList());
-            dto.setImageUrls(imageUrls);
+        if (ad.getMedia() != null) {
+            List<String> mediaUrls = ad.getMedia().stream()
+                    .map(Media -> "http://recycling_service:8080" + com.example.recycling_service.model.Media.getFilePath())
+                    ;
+            dto.setImageUrls(mediaUrls);
         }
 
         return dto;
@@ -165,7 +165,7 @@ public class AdvertisementService {
     }
 
     // get advertisement by id
-    public AdvertisementDTO getAdvertisementById(Long id) {
+    public AdvertisementDTO getAdvertisementById(UUID id) {
         Advertisement advertisement = advertisementRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,

@@ -1,11 +1,10 @@
-package com.example.recycling_service.dto;
+package com.example.recycling_service.dto.Request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

@@ -6,58 +6,49 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 
-import java.io.Serializable;
+import com.example.recycling_service.model.Enum.Role;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
+import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Getter
+@Table(name = "user")
 @Data
 public class User {
 
-    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true, name = "id")
-    private Long id;
+    private UUID id;
 
-    @Getter
     @Setter
     @Column(nullable = false, unique = true, name = "user_login")
-    private String username;
+    private String login;
 
-    @Getter
     @Column(nullable = false, name = "password_hash")
     private String password;
 
-    @Getter
     @Setter
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Getter
     @Column(nullable = false, name = "user_name")
     private String name;
 
-    @Getter
     @Column(nullable = false, name = "user_role")
-    private String role = "PHYS"; // По умолчанию роль "phys"
+    private Role role; // По умолчанию роль "phys"
 
-    @Getter
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Getter
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "avatar_path")
-    private String avatarPath;
+    // Это нужно сделать через таблицу отдельную
+//    @Column(name = "avatar_path")
+//    private String avatarPath;
 }

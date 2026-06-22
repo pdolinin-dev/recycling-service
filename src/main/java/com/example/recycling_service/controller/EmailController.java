@@ -1,9 +1,8 @@
 package com.example.recycling_service.controller;
 
-import com.example.recycling_service.dto.EmailRequest;
+import com.example.recycling_service.dto.Request.EmailRequest;
 import com.example.recycling_service.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.MessagingException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

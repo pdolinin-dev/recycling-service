@@ -1,6 +1,6 @@
 package com.example.recycling_service.service;
 
-import com.example.recycling_service.dto.UpdateUserRequest;
+import com.example.recycling_service.dto.Request.UpdateUserRequest;
 import com.example.recycling_service.dto.UserProfileDto;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.User;
@@ -15,12 +15,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +33,7 @@ public class UserService implements UserDetailsService {
 
         //Change only received entitys (if it not null)
         if (request.getUsername() != null) {
-            user.setUsername(request.getUsername());
+            user.setLogin(request.getUsername());
         }
         if (request.getEmail() != null) {
             user.setEmail(request.getEmail());
@@ -47,21 +44,21 @@ public class UserService implements UserDetailsService {
 
         List<Advertisement> ads = advertisementRepository.findByUserId(request.getId());
 
-        if (request.getAvatarPath() != null) user.setAvatarPath(request.getAvatarPath());
-
+//        if (request.getAvatarPath() != null) user.setAvatarPath(request.getAvatarPath());
+//
         User updatedUser = userRepository.save(user);
-
+//
         return new UserProfileDto(
                 updatedUser.getId(),
-                updatedUser.getUsername(),
+                updatedUser.getLogin(),
+                updatedUser.getName(),
                 updatedUser.getCreatedAt(),
                 updatedUser.getUpdatedAt(),
                 updatedUser.getPassword(),
-                updatedUser.getName(),
                 updatedUser.getEmail(),
                 updatedUser.getRole(),
-                ads,
-                updatedUser.getAvatarPath()
+                ads
+//                updatedUser.getAvatarPath()
         );
     }
 
@@ -71,7 +68,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User" + username +"not found"));
 
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getLogin(),
                 user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
@@ -85,19 +82,18 @@ public class UserService implements UserDetailsService {
 
         return new UserProfileDto(
                 user.getId(),
-                user.getUsername(),
+                user.getLogin(),
+                user.getName(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getPassword(),
-                user.getName(),
                 user.getEmail(),
                 user.getRole(),
-                ads,
-                user.getAvatarPath()
+                ads
         );
     }
 
-    public UserProfileDto getUserProfileWithAdvertisements(Long userId) {
+    public UserProfileDto getUserProfileWithAdvertisements(UUID userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User" + userId + " not found"));
 
@@ -105,15 +101,15 @@ public class UserService implements UserDetailsService {
 
         return new UserProfileDto(
                 user.getId(),
-                user.getUsername(),
+                user.getLogin(),
+                user.getName(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getPassword(),
-                user.getName(),
                 user.getEmail(),
                 user.getRole(),
-                ads,
-                user.getAvatarPath()
+                ads
+//                user.getAvatarPath()
         );
     }
 
@@ -125,15 +121,15 @@ public class UserService implements UserDetailsService {
             userProfileDtos.add(
                     new UserProfileDto(
                             user.getId(),
-                            user.getUsername(),
+                            user.getLogin(),
+                            user.getName(),
                             user.getCreatedAt(),
                             user.getUpdatedAt(),
                             user.getPassword(),
-                            user.getName(),
                             user.getEmail(),
                             user.getRole(),
-                            ads,
-                            user.getAvatarPath()
+                            ads
+//                            user.getAvatarPath()
                     ));
         }
         return userProfileDtos;
@@ -143,7 +139,7 @@ public class UserService implements UserDetailsService {
     public UserProfileDto updateAvatar(Long userId, String avatarPath) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        user.setAvatarPath(avatarPath);
+//        user.setAvatarPath(avatarPath);
         return toUserProfileDto(userRepository.save(user));
     }
 
@@ -151,15 +147,15 @@ public class UserService implements UserDetailsService {
         List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());
         UserProfileDto dto = new UserProfileDto(
                 user.getId(),
-                user.getUsername(),
+                user.getLogin(),
+                user.getName(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getPassword(),
-                user.getName(),
                 user.getEmail(),
                 user.getRole(),
-                ads,
-                user.getAvatarPath()
+                ads
+//                user.getAvatarPath()
         );
         return dto;
     }

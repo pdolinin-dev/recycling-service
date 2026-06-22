@@ -172,7 +172,7 @@ public class ChatController {
                     return new ChatDto(
                             chatId,
                             interlocutor.getId(),
-                            interlocutor.getUsername(),
+                            interlocutor.getLogin(),
                             interlocutor.getName(),
                             lastMessage != null ? lastMessage.getContent() : null,
                             lastMessage != null ? lastMessage.getTimestamp() : null,

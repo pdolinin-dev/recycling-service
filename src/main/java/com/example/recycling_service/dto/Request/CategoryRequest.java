@@ -1,15 +1,17 @@
-package com.example.recycling_service.dto;
+package com.example.recycling_service.dto.Request;
 
 import com.example.recycling_service.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class  CategoryRequest {
-    private Long id;
+    private UUID id;
     private String name; // если нужно
 
     public CategoryRequest(Category category) {

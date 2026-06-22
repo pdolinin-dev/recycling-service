@@ -1,6 +1,7 @@
 package com.example.recycling_service.service;
 
-import com.example.recycling_service.dto.RegisterRequest;
+import com.example.recycling_service.dto.Request.RegisterRequest;
+import com.example.recycling_service.model.Enum.Role;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class AuthService {
     }
 
     public User registerUser(RegisterRequest registerRequest) {
-        if (userRepository.existsByUsername(registerRequest.getUsername())) {
+        if (userRepository.existsByUsername(registerRequest.getLogin())) {
             throw new RuntimeException("Username is already taken!");
         }
 
@@ -33,11 +34,11 @@ public class AuthService {
         }
 
         User user = new User();
-        user.setUsername(registerRequest.getUsername());
+        user.setLogin(registerRequest.getLogin());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setEmail(registerRequest.getEmail());
         user.setName(registerRequest.getName());
-        user.setRole("phys");
+        user.setRole(Role.PHYS);
 
         return userRepository.save(user);
     }
