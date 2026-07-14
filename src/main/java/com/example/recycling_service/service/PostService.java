@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PostService {
@@ -30,7 +31,7 @@ public class PostService {
         return content;
     }
 
-    public Optional<Post> getPostById(Long id) {
+    public Optional<Post> getPostById(UUID id) {
         return postRepository.findPostById(id);
     }
 
@@ -52,16 +53,15 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Post updatePost(Long id, Post updatedPost) {
+    public Post updatePost(UUID id, Post updatedPost) {
         Post existing = postRepository.findById(id).orElseThrow();
         existing.setTitle(updatedPost.getTitle());
         existing.setContent(updatedPost.getContent());
         existing.setAuthor(updatedPost.getAuthor());
-        existing.setType(updatedPost.getType());
         return postRepository.save(existing);
     }
 
-    public void deletePost(Long id) {
+    public void deletePost(UUID id) {
         postRepository.deleteById(id);
     }
 }

@@ -3,7 +3,6 @@ package com.example.recycling_service.controller;
 import com.example.recycling_service.dto.Request.UpdateUserRequest;
 import com.example.recycling_service.dto.UserProfileDto;
 import com.example.recycling_service.model.User;
-import com.example.recycling_service.repository.ChatMessageRepository;
 import com.example.recycling_service.repository.UserRepository;
 import com.example.recycling_service.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,9 +25,6 @@ import java.util.UUID;
 public class UserController {
     private final UserService userService; // Оставляем только сервис
     private final UserRepository userRepository;
-    private final ChatMessageRepository chatMessageRepository;
-
-    private static final UUID DELETED_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     @GetMapping("/profile")
     public UserProfileDto getUserProfile(Authentication authentication, HttpServletResponse response) {
@@ -44,18 +40,14 @@ public class UserController {
     @DeleteMapping()
     public ResponseEntity<Void> deleteUserProfile(Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        chatMessageRepository.updateUserSenderReferencesToDeleted(user.getId(), DELETED_USER_ID);
-        chatMessageRepository.updateUserReceiverReferencesToDeleted(user.getId(), DELETED_USER_ID);
         userRepository.delete(user);
         return ResponseEntity.noContent().build();
     }
 
     @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserProfle(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUserProfle(@PathVariable UUID id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        chatMessageRepository.updateUserSenderReferencesToDeleted(user.getId(), DELETED_USER_ID);
-        chatMessageRepository.updateUserReceiverReferencesToDeleted(user.getId(), DELETED_USER_ID);
         userRepository.delete(user);
         return ResponseEntity.noContent().build();
     }
@@ -78,7 +70,7 @@ public class UserController {
     }
 
     @PutMapping(path="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserProfileDto updateUserProfile(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+    public UserProfileDto updateUserProfile(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request) {
         return userService.updateUserProfile(id, request);
     }
 }

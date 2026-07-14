@@ -1,6 +1,7 @@
 package com.example.recycling_service.config;
 
 import com.example.recycling_service.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,47 +60,37 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Добавляем CORS конфигурацию
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN") // Например, /api/admin/recycling-points
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
 
-                        // Удаление и редактирование чужих объявлений — только для админа
-                        .requestMatchers(HttpMethod.DELETE, "/api/advertisements/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/advertisements/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/user/**").permitAll()
-                        // Получение списка объявлений и деталей — доступно всем
-                        .requestMatchers(HttpMethod.GET, "/api/advertisements/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/user").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/user/{id}").permitAll()
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/api/advertisements", // Публичный доступ к списку объявлений
-                                "/api/advertisements/{id}", // Публичный доступ к конкретному объявлению
-                                "/api/advertisements/by-categories", // Публичный доступ к фильтрации по категориям
-                                "/api/user/{id}", // Публичный доступ к странце пользователя (без возможности изменений)
-                                "/api/recycling-points", // Публичный доступ к карте
-                                "/api/recycling-points/categories", // Публичный доступ к фильтрам
-                                "/api/recycling-points/{id}",// Публичный доступ детальной пункта
-                                "/ws/**",
-                                "/topic/**",
-                                "/api/posts/**",
-                                "/images/**",
-                                "/uploads/**"
+                        .requestMatchers(HttpMethod.GET, "/api/v1/advertisements/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/advertisements/by-categories").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/recycling-points/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
 
-                        ).permitAll()
-                        .requestMatchers(
-                                "/api/user/profile",
-                                "/api/advertisements/create",
-                                "/api/advertisements/update/**",
-                                "/api/advertisements/delete/**",
-                                "/api/chat/**",
-                                "/app/**",
-                                "/api/email/**"
-                        ).authenticated()
-                        .anyRequest().authenticated()
+                        // надо сделать чтобы был /create
+                        // а по категориям без конца
+                        .requestMatchers(HttpMethod.POST, "/api/v1/advertisements").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/advertisements/*/images").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/advertisements/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/advertisements/**").authenticated()
+
+                        .requestMatchers(HttpMethod.POST, "/api/v1/recycling-points/create").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/recycling-points").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/recycling-points").permitAll()
+
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/{id}").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/user/profile").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/user/**").authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

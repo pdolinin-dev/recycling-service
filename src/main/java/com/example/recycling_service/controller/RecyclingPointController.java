@@ -3,63 +3,94 @@
 */
 package com.example.recycling_service.controller;
 
-import com.example.recycling_service.dto.Request.CategoryRequest;
+import com.example.recycling_service.dto.CategoryDto;
 import com.example.recycling_service.dto.RecyclingPointDTO;
-import com.example.recycling_service.model.Category;
+
+import com.example.recycling_service.dto.Request.CreateRecyclingPointRequest;
+import com.example.recycling_service.dto.Request.RecyclePointFilterRequest;
 import com.example.recycling_service.model.RecyclingPoint;
+
 import com.example.recycling_service.service.RecyclingPointService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("api/recycling-points")
+@RequestMapping("api/v1/recycling-points")
 
 public class RecyclingPointController {
 
     @Autowired
     private RecyclingPointService recyclingPointService;
 
-    // Получение всех точек
+    /**
+     * Get all recycling points
+     * @return List of recycling points
+     */
     @GetMapping
     public List<RecyclingPoint> getAllPoints() {
         return recyclingPointService.getAllPoints();
     }
 
+    /**
+     * Get all categories
+     * @return List of categories
+     */
     @GetMapping("/categories")
-    public ResponseEntity<List<CategoryRequest>> getAllCategories() {
-        List<Category> categories = recyclingPointService.getAllCategories();
-        List<CategoryRequest> requests = categories.stream().map(CategoryRequest::new).collect(Collectors.toList());
-        return ResponseEntity.ok(requests);
+    public ResponseEntity<List<CategoryDto>> getAllCategories() {
+        return ResponseEntity.ok(recyclingPointService.getAllCategories());
     }
 
-    // Get current point details by id
+    /**
+     * Get recycling point by id
+     * @param id id of recycling point
+     * @return RecyclingPointDTO
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<RecyclingPointDTO> getRecyclingPointById(@PathVariable Long id) {
-        RecyclingPointDTO recyclingPointDTO = recyclingPointService.getPointById(id);
-        return ResponseEntity.ok(recyclingPointDTO);
+    public ResponseEntity<RecyclingPointDTO> getRecyclingPointById(@PathVariable UUID id) {
+        return ResponseEntity.ok(recyclingPointService.getPointById(id));
     }
 
-    //Добавление точки в базу
+    /**
+     * Получение точек по категориям
+     *
+     * @param request RecyclePointFilterRequest
+     * @return List<RecyclingPointDTO>
+     */
+    @PostMapping("/by-categories")
+    public ResponseEntity<List<RecyclingPointDTO>> getRecyclingPointByCategories(
+            @RequestBody RecyclePointFilterRequest request
+            ) {
+        return ResponseEntity.ok(recyclingPointService.getPointByCategory(request));
+    }
+
+    /**
+     * Создание точки
+     *
+     * @param request CreateRecyclingPointRequest
+     * @return RecyclingPointDTO
+     */
     @PostMapping
-    public RecyclingPoint addPoint(@RequestBody RecyclingPoint point) {
-        return recyclingPointService.addPoint(point);
+    public ResponseEntity<RecyclingPointDTO> addPoint(@RequestBody CreateRecyclingPointRequest request) {
+        return ResponseEntity.ok(recyclingPointService.createPoint(request));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<RecyclingPointDTO> updatePoint(@PathVariable Long id, @RequestBody RecyclingPointDTO dto) {
-        RecyclingPointDTO updated = recyclingPointService.updatePoint(id, dto);
-        return ResponseEntity.ok(updated);
-    }
+    // Тоже непонятно надо ли
+//    @PutMapping("/{id}")
+//    public ResponseEntity<RecyclingPointDTO> updatePoint(@PathVariable Long id, @RequestBody RecyclingPointDTO dto) {
+//        RecyclingPointDTO updated = recyclingPointService.updatePoint(id, dto);
+//        return ResponseEntity.ok(updated);
+//    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePoint(@PathVariable Long id) {
-        recyclingPointService.deletePoint(id);
-        return ResponseEntity.noContent().build();
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Void> deletePoint(@PathVariable Long id) {
+//        recyclingPointService.deletePoint(id);
+//        return ResponseEntity.noContent().build();
+//    }
 
 
 

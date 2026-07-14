@@ -25,7 +25,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final AdvertisementRepository advertisementRepository;
 
-    public UserProfileDto updateUserProfile(Long id, @Valid UpdateUserRequest request) {
+    public UserProfileDto updateUserProfile(UUID id, @Valid UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -54,9 +54,7 @@ public class UserService implements UserDetailsService {
                 updatedUser.getName(),
                 updatedUser.getCreatedAt(),
                 updatedUser.getUpdatedAt(),
-                updatedUser.getPassword(),
                 updatedUser.getEmail(),
-                updatedUser.getRole(),
                 ads
 //                updatedUser.getAvatarPath()
         );
@@ -70,7 +68,7 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getLogin(),
                 user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
 
@@ -86,9 +84,7 @@ public class UserService implements UserDetailsService {
                 user.getName(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
-                user.getPassword(),
                 user.getEmail(),
-                user.getRole(),
                 ads
         );
     }
@@ -105,9 +101,7 @@ public class UserService implements UserDetailsService {
                 user.getName(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
-                user.getPassword(),
                 user.getEmail(),
-                user.getRole(),
                 ads
 //                user.getAvatarPath()
         );
@@ -125,9 +119,7 @@ public class UserService implements UserDetailsService {
                             user.getName(),
                             user.getCreatedAt(),
                             user.getUpdatedAt(),
-                            user.getPassword(),
                             user.getEmail(),
-                            user.getRole(),
                             ads
 //                            user.getAvatarPath()
                     ));
@@ -136,7 +128,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserProfileDto updateAvatar(Long userId, String avatarPath) {
+    public UserProfileDto updateAvatar(UUID userId, String avatarPath) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 //        user.setAvatarPath(avatarPath);
@@ -151,9 +143,7 @@ public class UserService implements UserDetailsService {
                 user.getName(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
-                user.getPassword(),
                 user.getEmail(),
-                user.getRole(),
                 ads
 //                user.getAvatarPath()
         );

@@ -8,9 +8,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 
-    Boolean existsByUsername(String login);
+    Boolean existsByLogin(String login);
     Boolean existsByEmail(String email);
     //Boolean existsByUserId(String userId);
     User save(User user);

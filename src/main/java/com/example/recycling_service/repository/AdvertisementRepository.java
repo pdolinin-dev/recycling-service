@@ -15,7 +15,7 @@ public interface AdvertisementRepository extends JpaRepository<Advertisement, UU
     Advertisement save(Advertisement advertisement);
 
     @Query("SELECT a FROM Advertisement a JOIN a.categories c WHERE c.id IN :categoryIds")
-    List<Advertisement> findByCategoryIds(@Param("categoryIds") List<Long> categoryIds);
+    List<Advertisement> findByCategoryIds(@Param("categoryIds") List<UUID> categoryIds);
 
     List<Advertisement> findByUserId(UUID userId);
 

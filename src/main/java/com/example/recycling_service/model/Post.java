@@ -9,54 +9,32 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Getter
 @Setter
-@Table(name="posts")
+@Table(name="post")
 public class Post {
-    @Getter
-    @Setter
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Getter
-    @Setter
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
     private String title;
 
-    @Getter
-    @Setter
-    @Column(columnDefinition = "TEXT")
-    private String content; // Содержит HTML с тегами <img>
+    private String content;
 
-    @Getter
-    @Setter
     private String author;
 
-    @Getter
-    @Setter
     @CreationTimestamp
     @JsonFormat(pattern = "dd.MM.yyyy")
     private LocalDate createdAt;
 
-    @Getter
-    @Setter
     @UpdateTimestamp
     @JsonFormat(pattern = "dd.MM.yyyy")
     private LocalDate updatedAt;
 
-    @Getter
-    @Setter
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostImage> images = new ArrayList<>();
-
-    @Getter
-    @Setter
-    @Column(name = "post_type")
-    private String type;
-
-    // Геттеры и сеттеры
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Media> media = new HashSet<>();
 }

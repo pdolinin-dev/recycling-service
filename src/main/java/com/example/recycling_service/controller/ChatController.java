@@ -42,16 +42,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @RequestMapping("/api/chat")
-@Controller
+// TODO: Enable when chat module is rewritten.
+// @Controller
 public class ChatController {
 
     @Autowired
@@ -160,8 +158,8 @@ public class ChatController {
                 .map(chatId -> {
                     // Разбираем chatId на участников
                     String[] userIds = chatId.split("_");
-                    Long otherUserId = userIds[0].equals(currentUser.getId().toString()) ?
-                            Long.parseLong(userIds[1]) : Long.parseLong(userIds[0]);
+                    UUID otherUserId = UUID.fromString(userIds[0].equals(currentUser.getId().toString()) ?
+                            userIds[1] : userIds[0]);
 
                     User interlocutor = userRepository.findById(otherUserId)
                             .orElseThrow(() -> new UsernameNotFoundException("User not found"));

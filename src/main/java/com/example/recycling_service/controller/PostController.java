@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -23,7 +24,7 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Post> getPost(@PathVariable Long id) {
+    public ResponseEntity<Post> getPost(@PathVariable UUID id) {
         log.info("Fetching post with id: {}", id);
         Optional<Post> post = postService.getPostById(id);
 
@@ -57,12 +58,12 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public Post updatePost(@PathVariable Long id, @RequestBody Post post) {
+    public Post updatePost(@PathVariable UUID id, @RequestBody Post post) {
         return postService.updatePost(id, post);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }

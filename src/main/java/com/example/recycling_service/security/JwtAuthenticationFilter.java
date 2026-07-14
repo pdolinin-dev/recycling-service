@@ -27,10 +27,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        try {
-            String jwt = getJwtFromRequest(request);
+        String jwt = getJwtFromRequest(request);
 
-            if (jwt != null && jwtTokenProvider.validateToken(jwt)) {
+        if (jwt == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        try {
+            if (!jwtTokenProvider.validateToken(jwt)) {
+                SecurityContextHolder.clearContext();
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+                return;
+            }
+
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 String username = jwtTokenProvider.getUsernameFromToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -45,16 +56,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                logger.debug("JWT: " + jwt);
                 logger.debug("Authenticated user: " + username);
             }
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             logger.error("Could not set user authentication", ex);
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
             return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getServletPath().startsWith("/api/v1/auth/");
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

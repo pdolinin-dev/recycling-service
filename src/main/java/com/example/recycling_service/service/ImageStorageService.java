@@ -1,6 +1,5 @@
 package com.example.recycling_service.service;
 
-import com.example.recycling_service.model.PostImage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

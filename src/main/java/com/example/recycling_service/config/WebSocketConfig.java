@@ -27,8 +27,9 @@ import org.springframework.web.socket.messaging.DefaultSimpUserRegistry;
 
 import java.util.List;
 
-@Configuration
-@EnableWebSocketMessageBroker
+// TODO: Enable when chat module is rewritten.
+// @Configuration
+// @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Autowired

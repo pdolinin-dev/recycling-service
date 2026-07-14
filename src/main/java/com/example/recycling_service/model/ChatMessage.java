@@ -13,7 +13,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Data
-@Entity
+// TODO: Enable when chat module is rewritten.
+// @Entity
 @Table(name = "messages")
 @Getter
 @Setter

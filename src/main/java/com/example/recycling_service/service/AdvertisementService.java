@@ -1,14 +1,14 @@
 package com.example.recycling_service.service;
 
-import com.example.recycling_service.dto.AdvertisementDTO;
+import com.example.recycling_service.dto.Response.AdvertisementResponse;
+import com.example.recycling_service.dto.CategoryDto;
 import com.example.recycling_service.dto.Request.CreateAdvertisementRequest;
 import com.example.recycling_service.dto.Request.UpdateAdvertisementRequest;
-import com.example.recycling_service.model.Advertisement;
-import com.example.recycling_service.model.Category;
-import com.example.recycling_service.model.Media;
-import com.example.recycling_service.model.User;
+import com.example.recycling_service.exception.NotFoundException;
+import com.example.recycling_service.model.*;
 import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.CategoryRepository;
+import com.example.recycling_service.repository.MediaRepository;
 import com.example.recycling_service.repository.UserRepository;
 
 import jakarta.validation.Valid;
@@ -22,10 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,9 +34,38 @@ public class AdvertisementService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ImageStorageService imageStorageService;
+    @Autowired
+    private MediaRepository mediaRepository;
 
 
-    // Delete advetisement
+    // Find advertisement by id
+    public AdvertisementResponse findAdvertisementById(UUID id) {
+        return advertisementRepository.findById(id)
+                .map(AdvertisementResponse::new)
+                .orElseThrow(() -> new NotFoundException("Объявление", "id", id));
+    }
+
+    // Save advertisement
+    public AdvertisementResponse addImage(UUID advertisementId, MultipartFile file) throws IOException {
+        Advertisement advertisement = advertisementRepository.findById(advertisementId)
+                .orElseThrow(() -> new NotFoundException("Объявление", "id", advertisementId));
+
+        String fileName = imageStorageService.store(file);
+
+        Media media = new Media();
+        media.setFilePath("/uploads/" + fileName);
+        media.setMimeType(file.getContentType());
+        media.setName(file.getOriginalFilename());
+        media.setSize((int) file.getSize());
+
+        advertisement.getMedia().add(media);
+
+        Advertisement savedAd = advertisementRepository.save(advertisement);
+
+        return mapToDTO(savedAd);
+    }
+
+    // Delete advertisement
     public void deleteAdvertisement(UUID id, String userName) {
         User currentUser = userRepository.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Advertisement ad = advertisementRepository.findById(id)
@@ -58,12 +84,22 @@ public class AdvertisementService {
     /**
      * Поиск объявлений, относящихся к ЛЮБОЙ из указанных категорий.
      */
-    public List<Advertisement> findByCategoryIds(List<Long> categoryIds) {
+    public List<Advertisement> findByCategoryIds(List<UUID> categoryIds) {
         return advertisementRepository.findByCategoryIds(categoryIds);
     }
 
-    //update Advertesiment
-    public AdvertisementDTO updateAdvertisement(UUID id, @Valid UpdateAdvertisementRequest request) {
+    // Find all advertisements
+    public List<AdvertisementResponse> findAll() {
+
+        List<Advertisement> ads = advertisementRepository.findAll();
+
+        return ads.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Update Advertesiment
+    public AdvertisementResponse updateAdvertisement(UUID id, @Valid UpdateAdvertisementRequest request) {
         Advertisement ad = advertisementRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -87,39 +123,19 @@ public class AdvertisementService {
 
 
         Advertisement updatedAd = advertisementRepository.save(ad);
-        return new AdvertisementDTO(updatedAd);
+        return new AdvertisementResponse(updatedAd);
     }
-
-    private AdvertisementDTO mapToDTO(Advertisement ad) {
-        AdvertisementDTO dto = new AdvertisementDTO();
-        dto.setId(ad.getId());
-        dto.setTitle(ad.getTitle());
-        dto.setDescription(ad.getDescription());
-        dto.setPrice(ad.getPrice());
-        dto.setAddress(ad.getAddress());
-
-        // Добавляем пути к изображениям
-        if (ad.getMedia() != null) {
-            List<String> mediaUrls = ad.getMedia().stream()
-                    .map(Media -> "http://recycling_service:8080" + com.example.recycling_service.model.Media.getFilePath())
-                    ;
-            dto.setImageUrls(mediaUrls);
-        }
-
-        return dto;
-    }
-
 
     // get all advertisements
-    public List<AdvertisementDTO> getAllAdvertisements() {
+    public List<AdvertisementResponse> getAllAdvertisements() {
         return advertisementRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
-                .map(AdvertisementDTO::new)
+                .map(AdvertisementResponse::new)
                 .collect(Collectors.toList());
     }
 
-    public AdvertisementDTO createAdvertisementWithImages(CreateAdvertisementRequest request, List<MultipartFile> files, String username) throws IOException {
-        AdvertisementDTO created = createAdvertisement(request, username);
+    public AdvertisementResponse createAdvertisementWithImages(CreateAdvertisementRequest request, List<MultipartFile> files, String username) throws IOException {
+        AdvertisementResponse created = createAdvertisement(request, username);
 
         if (files != null && !files.isEmpty()) {
             Advertisement ad = advertisementRepository.findById(created.getId())
@@ -127,11 +143,10 @@ public class AdvertisementService {
 
             for (MultipartFile file : files) {
                 String fileName = imageStorageService.store(file);
-                PostImage image = new PostImage();
-                image.setFilePath("/uploads/" + fileName);
-                image.setMimeType(file.getContentType());
-                image.setAdvertisement(ad); // <--- не забудь связать
-                ad.getImages().add(image);
+                Media media = new Media();
+                media.setFilePath("/uploads/" + fileName);
+                media.setMimeType(file.getContentType());
+                ad.getMedia().add(media);
             }
 
             advertisementRepository.save(ad);
@@ -142,11 +157,9 @@ public class AdvertisementService {
 
 
     // create new advertisement
-    public AdvertisementDTO createAdvertisement(CreateAdvertisementRequest request, String username) {
+    public AdvertisementResponse createAdvertisement(CreateAdvertisementRequest request, String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        Set<Category> categories = categoryRepository.findAllById(request.getCategoryIds())
-                .stream()
-                .collect(Collectors.toSet());
+        Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategoryIds()));
 
         if (categories.size() != request.getCategoryIds().size()) {
             throw new IllegalArgumentException("Some categories not found");
@@ -161,17 +174,17 @@ public class AdvertisementService {
         advertisement.setCategories(categories);
 
         Advertisement savedAd = advertisementRepository.save(advertisement);
-        return new AdvertisementDTO(savedAd);
+        return new AdvertisementResponse(savedAd);
     }
 
     // get advertisement by id
-    public AdvertisementDTO getAdvertisementById(UUID id) {
+    public AdvertisementResponse getAdvertisementById(UUID id) {
         Advertisement advertisement = advertisementRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Advertisement not found with id: " + id
                 ));
-        return new AdvertisementDTO(advertisement);
+        return new AdvertisementResponse(advertisement);
     }
 
     /**
@@ -179,5 +192,32 @@ public class AdvertisementService {
      */
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
+    }
+
+    private AdvertisementResponse mapToDTO(Advertisement ad) {
+
+        AdvertisementResponse dto = new AdvertisementResponse();
+        dto.setId(ad.getId());
+        dto.setTitle(ad.getTitle());
+        dto.setDescription(ad.getDescription());
+        dto.setPrice(ad.getPrice());
+        dto.setAddress(ad.getAddress());
+        dto.setCategories(ad.getCategories() != null ?
+                ad.getCategories().stream()
+                .map(CategoryDto::new)
+                .collect(Collectors.toSet()) :
+                Collections.emptySet());
+        dto.setUserId(ad.getUser().getId());
+        dto.setCreatedAt(ad.getCreatedAt());
+
+        // Добавляем пути к изображениям
+        if (!ad.getMedia().isEmpty()) {
+            List<String> mediaFilePaths = ad.getMedia().stream()
+                    .map(image -> "http://localhost:8080" + image.getFilePath())
+                    .collect(Collectors.toList());
+            dto.setMediaFilePaths(mediaFilePaths);
+        }
+
+        return dto;
     }
 }

@@ -3,7 +3,6 @@
 */
 package com.example.recycling_service.dto;
 
-import com.example.recycling_service.dto.Request.CategoryRequest;
 import com.example.recycling_service.model.RecyclingPoint;
 import com.example.recycling_service.model.Type;
 
@@ -15,6 +14,7 @@ import lombok.NoArgsConstructor;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Data
@@ -22,38 +22,38 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class RecyclingPointDTO {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     private String name;
 
     private Type type;
+
     private String address;
 
     private double latitude;
     private double longitude;
 
-    private String phone_number;
+    private String phoneNumber;
 
     @ManyToMany
     @JoinTable(
-            name = "point_categories",
-            joinColumns = @JoinColumn(name = "id_point"),
-            inverseJoinColumns = @JoinColumn(name = "id_category" , columnDefinition = "bigint")
+            name = "point_category",
+            joinColumns = @JoinColumn(name = "recycling_point_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id" , columnDefinition = "bigint")
     )
-    private Set<CategoryRequest> categories = new HashSet<>();
+    private Set<CategoryDto> categories = new HashSet<>();
 
     public RecyclingPointDTO(RecyclingPoint rp) {
-        this.id = rp.getId();
         this.name = rp.getName();
         this.type = rp.getType();
-        this.phone_number = rp.getPhone_number();
+        this.phoneNumber = rp.getPhoneNumber();
         this.address = rp.getAddress();
         this.latitude = rp.getLatitude();
         this.longitude = rp.getLongitude();
         this.categories = rp.getCategories() != null ?
                 rp.getCategories().stream()
-                        .map(CategoryRequest::new)
+                        .map(CategoryDto::new)
                         .collect(Collectors.toSet()) :
                 Collections.emptySet();
     }

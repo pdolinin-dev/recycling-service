@@ -21,7 +21,7 @@ import java.util.UUID;
 //@AllArgsConstructor
 @Data
 public class UserProfileDto {
-
+    
     @NotNull
     private UUID id;
 
@@ -38,29 +38,21 @@ public class UserProfileDto {
     private LocalDateTime updatedAt;
 
     @NotBlank
-    private String password;
-
-    @NotBlank
     private String email;
-
-    @NotBlank
-    private Role role;
 
     private List<Advertisement> advertisements;
 
 //    private String avatarPath;
 
     public UserProfileDto(UUID id, String login, String name, LocalDateTime createdAt,
-                          LocalDateTime updatedAt, String password,
-                          String email, Role role, List<Advertisement> ads) {
+                          LocalDateTime updatedAt,
+                          String email, List<Advertisement> ads) {
         this.id = id;
         this.login = login;
         this.name = name;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.password = password;
         this.email = email;
-        this.role = role;
         this.advertisements = ads;
 //        this.avatarPath = avatarPath;
     }

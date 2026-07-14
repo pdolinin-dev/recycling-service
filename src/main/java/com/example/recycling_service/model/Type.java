@@ -1,17 +1,17 @@
 package com.example.recycling_service.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
+import java.util.UUID;
+
+@Getter
 @Entity
-@Table(name = "type")
+@Table(name = "recycling_point_type")
 public class Type {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @Column(name = "name")
     private String name;
-
-    public Long getId() { return id; }
-    public String getName() { return name; }
 }

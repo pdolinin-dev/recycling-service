@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
-import javax.print.attribute.standard.Media;
+import com.example.recycling_service.model.Media;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -16,7 +16,7 @@ import java.util.*;
 public class Advertisement {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @NotBlank(message = "Title cannot be blank")
@@ -51,11 +51,11 @@ public class Advertisement {
     @NotEmpty(message = "At least 1 category")
     private Set<Category> categories = new HashSet<>();
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(
             name = "advertisement_media",
             joinColumns = @JoinColumn(name = "advertisement_id"),
             inverseJoinColumns = @JoinColumn(name = "media_id")
     )
-    private Set<Media> media = new HashSet<>();
+    private List<Media> media = new ArrayList<>();
 }
