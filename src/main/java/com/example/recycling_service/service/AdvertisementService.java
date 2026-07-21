@@ -25,13 +25,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Validated // Добавляем аннотацию для валидации на уровне сервиса
@@ -44,9 +42,7 @@ public class AdvertisementService {
     private final ImageStorageService imageStorageService;
     @Autowired
     private MediaRepository mediaRepository;
-
-    private static Logger logger = LoggerFactory.getLogger(AdvertisementService.class);
-
+    
     // Find advertisement by id
     public AdvertisementResponse findAdvertisementById(UUID id) {
         return advertisementRepository.findById(id)
@@ -82,26 +78,28 @@ public class AdvertisementService {
 
         // Проверяем, является ли текущий пользователь владельцем или администратором
         if (!isUserOwner(ad, currentUser) && !currentUser.getRole().equals(Role.ADMIN)) {
+            log.warn("У пользователя [{}] нет прав на удаление объявление [{}]", userName, id);
             throw new ForbiddenException(currentUser.getName());
         }
 
-        logger.info("Удалено объявление с id {}", id);
+        log.info("Удалено объявление с id {}", id);
         advertisementRepository.delete(ad);
     }
 
     /**
      * Поиск объявлений, относящихся к ЛЮБОЙ из указанных категорий.
      */
-    public List<Advertisement> findByCategoryIds(List<UUID> categoryIds) {
-        logger.info("Получение объявлений по категориям {}", categoryIds);
-        return advertisementRepository.findByCategoryIds(categoryIds);
+    public List<AdvertisementResponse> findByCategoryIds(List<UUID> categoryIds) {
+        return advertisementRepository.findByCategoryIds(categoryIds)
+                .stream().map(this::mapToDTO)
+                .toList();
     }
 
     // Find all advertisements
     public List<AdvertisementResponse> findAll() {
 
         List<Advertisement> ads = advertisementRepository.findAll();
-        logger.info("Получено {} объявлений", ads.size());
+        log.info("Получено {} объявлений", ads.size());
         return ads.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -116,28 +114,27 @@ public class AdvertisementService {
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь c логин " + login + " не найден"));
 
         if (!isUserOwner(ad, currentUser) && !currentUser.getRole().equals(Role.ADMIN)){
-            logger.info("Пользователь {} не является владельцем объявления или админом", currentUser.getLogin());
+            log.warn("У пользователя [{}] нет прав на изменение объявление [{}]", login, id);
             throw new ForbiddenException(currentUser.getName());
         }
 
-        logger.info("Начало обновления объявления {}", id);
         // Обновляем только переданные поля (если они не null)
         if (request.getTitle() != null) {
             ad.setTitle(request.getTitle());
-            logger.info("Обновлен заголовок {}", request.getTitle());
+            log.info("Обновлен заголовок {}", request.getTitle());
         }
         if (request.getDescription() != null) {
             ad.setDescription(request.getDescription());
-            logger.info("Обновлено описание {}", request.getDescription());
+            log.info("Обновлено описание {}", request.getDescription());
         }
         if (request.getPrice() != null) {
             ad.setPrice(request.getPrice());
-            logger.info("Обновлена цена {}", request.getPrice());
+            log.info("Обновлена цена {}", request.getPrice());
         }
         if (request.getCategoryIds() != null) {
             Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategoryIds()));
             ad.setCategories(categories);
-            logger.info("Обновлены категории {}", request.getCategoryIds());
+            log.info("Обновлены категории {}", request.getCategoryIds());
         }
 
         Advertisement updatedAd = advertisementRepository.save(ad);
@@ -183,6 +180,8 @@ public class AdvertisementService {
         Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategoryIds()));
 
         if (categories.size() != request.getCategoryIds().size()) {
+            log.warn("Часть категорий не найдена: запрошено [{}], найдено [{}]",
+                    request.getCategoryIds().size(), categories.size());
             throw new IllegalArgumentException("Some categories not found");
         }
 
@@ -243,7 +242,7 @@ public class AdvertisementService {
     }
 
     private boolean isUserOwner(Advertisement advertisement, User user) {
-        logger.info("Проверяем является ли пользователь {} владельцем публикации", user.getLogin());
+        log.info("Проверяем является ли пользователь {} владельцем публикации", user.getLogin());
         return advertisement.getUser().getId().equals(user.getId());
     }
 }

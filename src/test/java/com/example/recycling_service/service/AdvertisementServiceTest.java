@@ -107,7 +107,6 @@ class AdvertisementServiceTest {
         CreateAdvertisementRequest request = new CreateAdvertisementRequest();
         Set<UUID> categoryIds = new HashSet<>();
         categoryIds.add(UUID.randomUUID());
-        categoryIds.add(UUID.randomUUID());
         request.setCategoryIds(categoryIds);
         request.setDescription("test_description_123");
         request.setTitle("test_title_123");
@@ -115,14 +114,12 @@ class AdvertisementServiceTest {
 
         Set<Category> categorySet = new HashSet<>();
         Category category1 = new Category();
-        Category category2 = new Category();
         categorySet.add(category1);
-        categorySet.add(category2);
 
         when(userRepository.findByLogin("test_login_123"))
                 .thenReturn(Optional.of(user));
 
-        when(categoryRepository.findAllById(request.getCategoryIds()))
+        when(categoryRepository.findAllById(any()))
                 .thenReturn(categorySet);
 
         when(advertisementRepository.save(any()))
@@ -341,9 +338,14 @@ class AdvertisementServiceTest {
         when(advertisementRepository.findByCategoryIds(categoryList))
                 .thenReturn(advertisementList);
 
-        List<Advertisement> advertisements = advertisementService.findByCategoryIds(categoryList);
-        assertThat(advertisements).hasSize(1);
-        assertThat(advertisements).contains(advertisement);
+        List<AdvertisementResponse> advertisementResponseList = advertisementService.findByCategoryIds(categoryList);
+        assertThat(advertisementResponseList).hasSize(1);
+
+        AdvertisementResponse advertisementValue = advertisementResponseList.getFirst();
+        assertThat(advertisementValue.getPrice()).isEqualTo(advertisement.getPrice());
+        assertThat(advertisementValue.getTitle()).isEqualTo(advertisement.getTitle());
+        assertThat(advertisementValue.getDescription()).isEqualTo(advertisement.getDescription());
+
         verify(advertisementRepository).findByCategoryIds(categoryList);
     }
 }

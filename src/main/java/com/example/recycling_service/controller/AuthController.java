@@ -5,6 +5,7 @@ import com.example.recycling_service.dto.Request.LoginRequest;
 import com.example.recycling_service.dto.Request.RegisterRequest;
 import com.example.recycling_service.service.AuthService;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -27,6 +29,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        log.info("Авторизация пользователя {}", loginRequest.getLogin());
         return ResponseEntity.ok(authService.login(loginRequest));
     }
 
@@ -37,6 +40,7 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<JwtResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        log.info("Регистрация пользователя {}", registerRequest.getLogin());
         return ResponseEntity.ok(authService.register(registerRequest));
     }
 }

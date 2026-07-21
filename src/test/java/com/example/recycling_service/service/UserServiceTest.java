@@ -2,6 +2,7 @@ package com.example.recycling_service.service;
 
 import com.example.recycling_service.dto.Request.UpdateUserRequest;
 import com.example.recycling_service.dto.UserProfileDto;
+import com.example.recycling_service.exception.ForbiddenException;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.Enum.Role;
 import com.example.recycling_service.model.User;
@@ -184,5 +185,57 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.updateUserProfile(userId, request))
                 .isInstanceOf(UsernameNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Удаления профиля пользователем")
+    void deleteUserProfile_success() {
+        when(userRepository.findByLogin(user.getLogin()))
+                .thenReturn(Optional.of(user));
+
+        userService.deleteUserProfile("test_login_123");
+
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    @DisplayName("Удаления профиля пользователем: ")
+    void deleteUserProfile_UsernameNotFoundException() {
+        when(userRepository.findByLogin(user.getLogin()))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.deleteUserProfile("test_login_123"))
+                .isInstanceOf(UsernameNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Удаления профиля админом ")
+    void deleteUserProfile_success_by_admin() {
+        User admin = new User();
+        admin.setId(UUID.randomUUID());
+        admin.setRole(Role.ADMIN);
+        admin.setLogin("test_admin_login_123");
+        admin.setPassword("test_admin_passwordhash_123");
+        admin.setEmail("test_admin_email_123");
+        admin.setName("test_admin_name_123");
+
+        when(userRepository.findByLogin("test_admin_login_123"))
+                .thenReturn(Optional.of(admin));
+
+        when(userRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
+
+        userService.deleteUserProfile(user.getId(), admin.getLogin());
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    @DisplayName("Удаления профиля админом: ForbiddenException")
+    void deleteUserProfile_ForbiddenException_by_admin() {
+        when(userRepository.findByLogin(any()))
+                .thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> userService.deleteUserProfile(user.getId(), "test_login"))
+                .isInstanceOf(ForbiddenException.class);
     }
 }

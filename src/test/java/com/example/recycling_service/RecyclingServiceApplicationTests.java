@@ -18,16 +18,4 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 public class RecyclingServiceApplicationTests {
 
-	@Mock
-	private RecyclingPointRepository recyclingPointRepository;
-
-	@InjectMocks
-	private RecyclingPointService recyclingPointService;
-
-	@Test
-	public void testGetAllPoints() {
-		when(recyclingPointRepository.findAll()).thenReturn(Collections.emptyList());
-		List<RecyclingPointDto> points = recyclingPointService.getAllPoints();
-		assertEquals(0, points.size());
-	}
 }

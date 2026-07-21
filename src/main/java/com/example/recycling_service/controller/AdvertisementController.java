@@ -11,6 +11,7 @@ import com.example.recycling_service.service.AdvertisementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-//@Slf4j
+@Slf4j
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/v1/advertisements")
@@ -39,9 +40,12 @@ public class AdvertisementController {
      * @return List of advertisements
      */
     @PostMapping("/by-categories")
-    public ResponseEntity<List<Advertisement>> getByCategories(
+    public ResponseEntity<List<AdvertisementResponse>> getByCategories(
             @RequestBody List<UUID> categoryIds) {
-        return ResponseEntity.ok(advertisementService.findByCategoryIds(categoryIds));
+        log.debug("Запрос объявлений по категориям {}", categoryIds);
+        List<AdvertisementResponse> result = advertisementService.findByCategoryIds(categoryIds);
+        log.debug("Найдено объявлений {}", result.size());
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -54,7 +58,9 @@ public class AdvertisementController {
     public ResponseEntity<Void> deleteAdvertisement(
             @PathVariable UUID id,
             Authentication authentication) {
+        log.info("Запрос на удаление объявления [{}], пользователь: [{}]", id, authentication.getName());
         advertisementService.deleteAdvertisement(id, authentication.getName());
+        log.info("Объявление [{}] удалено", id);
         return ResponseEntity.noContent().build();
     }
 
@@ -65,6 +71,7 @@ public class AdvertisementController {
      * @return AdvertisementResponse
      * @throws IOException
      */
+    @Deprecated
     @PostMapping("/{id}/images")
     public ResponseEntity<AdvertisementResponse> uploadAdImage(
             @PathVariable UUID id,
@@ -84,16 +91,22 @@ public class AdvertisementController {
     public ResponseEntity<AdvertisementResponse> updateAdvertisement(@PathVariable UUID id,
                                                                      @Valid @RequestBody UpdateAdvertisementRequest request,
                                                                     Authentication authentication) {
-        return ResponseEntity.ok(advertisementService.updateAdvertisement(id, request, authentication.getName()));
+        log.info("Запрос на обновления объявления [{}], Пользователь: [{}]", id, authentication.getName());
+        AdvertisementResponse response = advertisementService.updateAdvertisement(id, request, authentication.getName());
+        log.info("Объявление [{}] обновлено", id);
+        return ResponseEntity.ok(response);
     }
 
     /**
      * Get all advertisements
-     * @return
+     * @return List<AdvertisementResponse>
      */
     @GetMapping
     public ResponseEntity<List<AdvertisementResponse>> getAllAdvertisements() {
-        return ResponseEntity.ok(advertisementService.findAll());
+        log.debug("Запрос всех объявлений");
+        List<AdvertisementResponse> result = advertisementService.findAll();
+        log.debug("Возвращено объявлений: {}", result.size());
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -109,9 +122,12 @@ public class AdvertisementController {
             @RequestPart("data") @Valid CreateAdvertisementRequest request,
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
             Authentication authentication) throws IOException {
-
-        return ResponseEntity.ok(advertisementService.createAdvertisementWithImages(
-                request, files, authentication.getName()));
+        log.info("Запрос на создание объявления: title=[{}], Пользователь: [{}]",
+                request.getTitle(), authentication.getName());
+        AdvertisementResponse response = advertisementService.createAdvertisementWithImages(
+                request, files, authentication.getName());
+        log.info("Объявление создано с id [{}]", response.getId());
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -121,6 +137,7 @@ public class AdvertisementController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<AdvertisementResponse> getAdvertisementById(@PathVariable UUID id) {
+        log.debug("Запрос объявления по id [{}]", id);
         return ResponseEntity.ok(advertisementService.findAdvertisementById(id));
     }
 
@@ -130,9 +147,10 @@ public class AdvertisementController {
      */
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
+        log.debug("Запрос всех категорий");
         List<Category> categories = advertisementService.getAllCategories();
-        List<CategoryDto> requests = categories.stream().map(CategoryDto::new).collect(Collectors.toList());
-
-        return ResponseEntity.ok(requests);
+        List<CategoryDto> response = categories.stream().map(CategoryDto::new).collect(Collectors.toList());
+        log.debug("Возвращено категорий: {}", response.size());
+        return ResponseEntity.ok(response);
     }
 }
