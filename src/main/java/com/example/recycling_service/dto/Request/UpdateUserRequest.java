@@ -14,12 +14,7 @@ public class UpdateUserRequest {
 
     @Getter
     @Setter
-    @NotNull
-    private UUID id;
-
-    @Getter
-    @Setter
-    private String username;
+    private String login;
 
     @Getter
     @Setter

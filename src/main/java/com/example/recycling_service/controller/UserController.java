@@ -52,22 +52,15 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-//    @GetMapping("/profile")
-//    public UserProfileDto getUserProfile(Authentication authentication) {
-//        // Временное решение - используем дефолтного пользователя, если аутентификация null
-//        String username = (authentication != null) ? authentication.getName() : "user1234";
-//        return userService.getUserProfileWithAdvertisements(username);
-//    }
-
     @GetMapping("/{id}")
     public UserProfileDto getUserProfile(@PathVariable UUID id) {
         return userService.getUserProfileWithAdvertisements(id);
     }
 
-    @GetMapping
-    public List<UserProfileDto> getUserProfiles(){
-        return userService.getUserProfiles();
-    }
+//    @GetMapping
+//    public List<UserProfileDto> getUserProfiles(){
+//        return userService.getUserProfiles();
+//    }
 
     @PutMapping(path="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserProfileDto updateUserProfile(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request) {

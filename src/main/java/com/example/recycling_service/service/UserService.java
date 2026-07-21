@@ -19,21 +19,29 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final AdvertisementRepository advertisementRepository;
 
+    private static Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    /***
+     * Обновление профиля
+     * @param request UpdateUserRequest
+     * @return UserProfileDto
+     */
     public UserProfileDto updateUserProfile(UUID id, @Valid UpdateUserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found with id:" + id));
+                .orElseThrow(() -> new UsernameNotFoundException("User" + id + " not found"));
 
-        //Change only received entitys (if it not null)
-        if (request.getUsername() != null) {
-            user.setLogin(request.getUsername());
+        //Меняем значение только, если в request не Null
+        if (request.getLogin() != null) {
+            user.setLogin(request.getLogin());
         }
         if (request.getEmail() != null) {
             user.setEmail(request.getEmail());
@@ -42,7 +50,7 @@ public class UserService implements UserDetailsService {
             user.setName(request.getName());
         }
 
-        List<Advertisement> ads = advertisementRepository.findByUserId(request.getId());
+        List<Advertisement> ads = advertisementRepository.findByUserId(id);
 
 //        if (request.getAvatarPath() != null) user.setAvatarPath(request.getAvatarPath());
 //
@@ -65,6 +73,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User" + username +"not found"));
 
+        logger.info("Получение авторизации пользователя");
         return new org.springframework.security.core.userdetails.User(
                 user.getLogin(),
                 user.getPassword(),
@@ -72,9 +81,9 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    public UserProfileDto getUserProfileWithAdvertisements(String username) {
-        User user = userRepository.findByLogin(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User" + username + " not found"));
+    public UserProfileDto getUserProfileWithAdvertisements(String login) {
+        User user = userRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User" + login + " not found"));
 
         List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());
 
@@ -93,7 +102,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User" + userId + " not found"));
 
-        List<Advertisement> ads = advertisementRepository.findByUserId(userId);
+        List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());
 
         return new UserProfileDto(
                 user.getId(),
