@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecyclingPointDTO {
+public class RecyclingPointDto {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -44,7 +44,7 @@ public class RecyclingPointDTO {
     )
     private Set<CategoryDto> categories = new HashSet<>();
 
-    public RecyclingPointDTO(RecyclingPoint rp) {
+    public RecyclingPointDto(RecyclingPoint rp) {
         this.name = rp.getName();
         this.type = rp.getType();
         this.phoneNumber = rp.getPhoneNumber();

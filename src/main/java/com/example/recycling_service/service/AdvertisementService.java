@@ -4,8 +4,10 @@ import com.example.recycling_service.dto.Response.AdvertisementResponse;
 import com.example.recycling_service.dto.CategoryDto;
 import com.example.recycling_service.dto.Request.CreateAdvertisementRequest;
 import com.example.recycling_service.dto.Request.UpdateAdvertisementRequest;
+import com.example.recycling_service.exception.ForbiddenException;
 import com.example.recycling_service.exception.NotFoundException;
 import com.example.recycling_service.model.*;
+import com.example.recycling_service.model.Enum.Role;
 import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.CategoryRepository;
 import com.example.recycling_service.repository.MediaRepository;
@@ -13,6 +15,8 @@ import com.example.recycling_service.repository.UserRepository;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -29,6 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Validated // Добавляем аннотацию для валидации на уровне сервиса
 public class AdvertisementService {
+
     private final AdvertisementRepository advertisementRepository;
     @Autowired
     private final CategoryRepository categoryRepository;
@@ -37,6 +45,7 @@ public class AdvertisementService {
     @Autowired
     private MediaRepository mediaRepository;
 
+    private static Logger logger = LoggerFactory.getLogger(AdvertisementService.class);
 
     // Find advertisement by id
     public AdvertisementResponse findAdvertisementById(UUID id) {
@@ -67,17 +76,16 @@ public class AdvertisementService {
 
     // Delete advertisement
     public void deleteAdvertisement(UUID id, String userName) {
-        User currentUser = userRepository.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User currentUser = userRepository.findByLogin(userName).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Advertisement ad = advertisementRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Объявление с ID " + id + " не найдено"
-                ));
+                .orElseThrow(() -> new NotFoundException("Объявление", "Id", id));
 
-        // Проверяем, является ли текущий пользователь владельцем
-        if (!ad.getUser().getId().equals(currentUser.getId()) && !currentUser.getRole().equals("admin")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Вы не можете удалить это объявление");
+        // Проверяем, является ли текущий пользователь владельцем или администратором
+        if (!isUserOwner(ad, currentUser) && !currentUser.getRole().equals(Role.ADMIN)) {
+            throw new ForbiddenException(currentUser.getName());
         }
+
+        logger.info("Удалено объявление с id {}", id);
         advertisementRepository.delete(ad);
     }
 
@@ -85,6 +93,7 @@ public class AdvertisementService {
      * Поиск объявлений, относящихся к ЛЮБОЙ из указанных категорий.
      */
     public List<Advertisement> findByCategoryIds(List<UUID> categoryIds) {
+        logger.info("Получение объявлений по категориям {}", categoryIds);
         return advertisementRepository.findByCategoryIds(categoryIds);
     }
 
@@ -92,37 +101,47 @@ public class AdvertisementService {
     public List<AdvertisementResponse> findAll() {
 
         List<Advertisement> ads = advertisementRepository.findAll();
-
+        logger.info("Получено {} объявлений", ads.size());
         return ads.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
     // Update Advertesiment
-    public AdvertisementResponse updateAdvertisement(UUID id, @Valid UpdateAdvertisementRequest request) {
+    public AdvertisementResponse updateAdvertisement(UUID id, @Valid UpdateAdvertisementRequest request, String login) {
         Advertisement ad = advertisementRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Advertisement not found with id: " + id
-                ));
+                .orElseThrow(() -> new NotFoundException("Объявление", "id", id));
 
+        User currentUser = userRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("Пользователь c логин " + login + " не найден"));
+
+        if (!isUserOwner(ad, currentUser) && !currentUser.getRole().equals(Role.ADMIN)){
+            logger.info("Пользователь {} не является владельцем объявления или админом", currentUser.getLogin());
+            throw new ForbiddenException(currentUser.getName());
+        }
+
+        logger.info("Начало обновления объявления {}", id);
         // Обновляем только переданные поля (если они не null)
         if (request.getTitle() != null) {
             ad.setTitle(request.getTitle());
+            logger.info("Обновлен заголовок {}", request.getTitle());
         }
         if (request.getDescription() != null) {
             ad.setDescription(request.getDescription());
+            logger.info("Обновлено описание {}", request.getDescription());
         }
         if (request.getPrice() != null) {
             ad.setPrice(request.getPrice());
+            logger.info("Обновлена цена {}", request.getPrice());
         }
         if (request.getCategoryIds() != null) {
             Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategoryIds()));
             ad.setCategories(categories);
+            logger.info("Обновлены категории {}", request.getCategoryIds());
         }
 
-
         Advertisement updatedAd = advertisementRepository.save(ad);
+
         return new AdvertisementResponse(updatedAd);
     }
 
@@ -134,7 +153,9 @@ public class AdvertisementService {
                 .collect(Collectors.toList());
     }
 
-    public AdvertisementResponse createAdvertisementWithImages(CreateAdvertisementRequest request, List<MultipartFile> files, String username) throws IOException {
+    public AdvertisementResponse createAdvertisementWithImages(CreateAdvertisementRequest request,
+                                                               List<MultipartFile> files,
+                                                               String username) throws IOException {
         AdvertisementResponse created = createAdvertisement(request, username);
 
         if (files != null && !files.isEmpty()) {
@@ -158,7 +179,7 @@ public class AdvertisementService {
 
     // create new advertisement
     public AdvertisementResponse createAdvertisement(CreateAdvertisementRequest request, String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByLogin(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategoryIds()));
 
         if (categories.size() != request.getCategoryIds().size()) {
@@ -219,5 +240,10 @@ public class AdvertisementService {
         }
 
         return dto;
+    }
+
+    private boolean isUserOwner(Advertisement advertisement, User user) {
+        logger.info("Проверяем является ли пользователь {} владельцем публикации", user.getLogin());
+        return advertisement.getUser().getId().equals(user.getId());
     }
 }

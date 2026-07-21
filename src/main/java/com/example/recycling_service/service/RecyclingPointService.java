@@ -1,7 +1,7 @@
 package com.example.recycling_service.service;
 
 import com.example.recycling_service.dto.CategoryDto;
-import com.example.recycling_service.dto.RecyclingPointDTO;
+import com.example.recycling_service.dto.RecyclingPointDto;
 
 import com.example.recycling_service.dto.Request.CreateRecyclingPointRequest;
 import com.example.recycling_service.dto.Request.RecyclePointFilterRequest;
@@ -42,8 +42,10 @@ public class RecyclingPointService {
 
     /*Находим все точки
     */
-    public List<RecyclingPoint> getAllPoints() {
-        return recyclingPointRepository.findAll();
+    public List<RecyclingPointDto> getAllPoints() {
+        return recyclingPointRepository.findAll()
+                .stream().map(this::mapRecyclingPointToDto)
+                .toList();
     }
 
     public RecyclingPoint addPoint(RecyclingPoint point) {
@@ -58,20 +60,20 @@ public class RecyclingPointService {
     }
 
     // Get point by id
-    public RecyclingPointDTO getPointById(UUID id) {
+    public RecyclingPointDto getPointById(UUID id) {
         RecyclingPoint recyclingPoint = recyclingPointRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пункт", "id", id));
 
         return mapRecyclingPointToDto(recyclingPoint);
     }
 
-    public List<RecyclingPointDTO> getPointByCategory(RecyclePointFilterRequest request) {
+    public List<RecyclingPointDto> getPointByCategory(RecyclePointFilterRequest request) {
         return recyclingPointRepository.findByCategories(request.getCategoryIds())
                 .stream().map(this::mapRecyclingPointToDto)
                 .toList();
     }
 
-    public RecyclingPointDTO createPoint(CreateRecyclingPointRequest request) {
+    public RecyclingPointDto createPoint(CreateRecyclingPointRequest request) {
         RecyclingPoint point = new RecyclingPoint();
 
         Type type = typeRepository.findById(request.getTypeId())
@@ -94,7 +96,7 @@ public class RecyclingPointService {
 
     // HUETA надо переписывать
     @Transactional
-    public RecyclingPointDTO updatePoint(UUID id, RecyclingPointDTO dto) {
+    public RecyclingPointDto updatePoint(UUID id, RecyclingPointDto dto) {
         return null;
     }
 
@@ -114,8 +116,9 @@ public class RecyclingPointService {
         return dto;
     }
 
-    private RecyclingPointDTO mapRecyclingPointToDto(RecyclingPoint point) {
-        RecyclingPointDTO dto = new RecyclingPointDTO(point);
+    private RecyclingPointDto mapRecyclingPointToDto(RecyclingPoint point) {
+        RecyclingPointDto dto = new RecyclingPointDto(point);
+        dto.setId(point.getId());
         dto.setName(point.getName());
         dto.setAddress(point.getAddress());
         dto.setType(point.getType());

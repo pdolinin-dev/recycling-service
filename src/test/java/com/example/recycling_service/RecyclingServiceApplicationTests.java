@@ -1,5 +1,6 @@
 package com.example.recycling_service;
 
+import com.example.recycling_service.dto.RecyclingPointDto;
 import com.example.recycling_service.model.RecyclingPoint;
 import com.example.recycling_service.repository.RecyclingPointRepository;
 import com.example.recycling_service.service.RecyclingPointService;
@@ -26,7 +27,7 @@ public class RecyclingServiceApplicationTests {
 	@Test
 	public void testGetAllPoints() {
 		when(recyclingPointRepository.findAll()).thenReturn(Collections.emptyList());
-		List<RecyclingPoint> points = recyclingPointService.getAllPoints();
+		List<RecyclingPointDto> points = recyclingPointService.getAllPoints();
 		assertEquals(0, points.size());
 	}
 }

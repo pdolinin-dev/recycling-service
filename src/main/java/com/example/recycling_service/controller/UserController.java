@@ -39,7 +39,7 @@ public class UserController {
     @Transactional
     @DeleteMapping()
     public ResponseEntity<Void> deleteUserProfile(Authentication authentication) {
-        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByLogin(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         userRepository.delete(user);
         return ResponseEntity.noContent().build();
     }

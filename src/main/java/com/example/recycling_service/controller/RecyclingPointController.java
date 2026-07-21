@@ -4,11 +4,10 @@
 package com.example.recycling_service.controller;
 
 import com.example.recycling_service.dto.CategoryDto;
-import com.example.recycling_service.dto.RecyclingPointDTO;
+import com.example.recycling_service.dto.RecyclingPointDto;
 
 import com.example.recycling_service.dto.Request.CreateRecyclingPointRequest;
 import com.example.recycling_service.dto.Request.RecyclePointFilterRequest;
-import com.example.recycling_service.model.RecyclingPoint;
 
 import com.example.recycling_service.service.RecyclingPointService;
 
@@ -32,7 +31,7 @@ public class RecyclingPointController {
      * @return List of recycling points
      */
     @GetMapping
-    public List<RecyclingPoint> getAllPoints() {
+    public List<RecyclingPointDto> getAllPoints() {
         return recyclingPointService.getAllPoints();
     }
 
@@ -51,7 +50,7 @@ public class RecyclingPointController {
      * @return RecyclingPointDTO
      */
     @GetMapping("/{id}")
-    public ResponseEntity<RecyclingPointDTO> getRecyclingPointById(@PathVariable UUID id) {
+    public ResponseEntity<RecyclingPointDto> getRecyclingPointById(@PathVariable UUID id) {
         return ResponseEntity.ok(recyclingPointService.getPointById(id));
     }
 
@@ -62,7 +61,7 @@ public class RecyclingPointController {
      * @return List<RecyclingPointDTO>
      */
     @PostMapping("/by-categories")
-    public ResponseEntity<List<RecyclingPointDTO>> getRecyclingPointByCategories(
+    public ResponseEntity<List<RecyclingPointDto>> getRecyclingPointByCategories(
             @RequestBody RecyclePointFilterRequest request
             ) {
         return ResponseEntity.ok(recyclingPointService.getPointByCategory(request));
@@ -75,7 +74,7 @@ public class RecyclingPointController {
      * @return RecyclingPointDTO
      */
     @PostMapping
-    public ResponseEntity<RecyclingPointDTO> addPoint(@RequestBody CreateRecyclingPointRequest request) {
+    public ResponseEntity<RecyclingPointDto> addPoint(@RequestBody CreateRecyclingPointRequest request) {
         return ResponseEntity.ok(recyclingPointService.createPoint(request));
     }
 

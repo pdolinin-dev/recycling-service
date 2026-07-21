@@ -62,7 +62,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User" + username +"not found"));
 
         return new org.springframework.security.core.userdetails.User(
@@ -73,7 +73,7 @@ public class UserService implements UserDetailsService {
     }
 
     public UserProfileDto getUserProfileWithAdvertisements(String username) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User" + username + " not found"));
 
         List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());

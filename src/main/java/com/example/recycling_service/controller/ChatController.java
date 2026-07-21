@@ -76,7 +76,7 @@ public class ChatController {
         }
 
         // 2. Получаем текущего пользователя
-        User currentUser = userRepository.findByUsername(authentication.getName())
+        User currentUser = userRepository.findByLogin(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         // 3. Проверяем, что пользователь участник чата
@@ -122,7 +122,7 @@ public class ChatController {
         }
 
         // Проверяем соответствие senderId из сообщения и токена
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if (!user.getId().equals(chatMessage.getSender())) {
@@ -148,7 +148,7 @@ public class ChatController {
     // Получение списка чатов пользователя
     @GetMapping
     public ResponseEntity<List<ChatDto>> getUserChats(Authentication authentication) {
-        User currentUser = userRepository.findByUsername(authentication.getName())
+        User currentUser = userRepository.findByLogin(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         // Получаем все уникальные listing_id (чаты), где участвует пользователь

@@ -76,12 +76,15 @@ public class AdvertisementController {
     /**
      * Update advertisement
      * @param id Advertisement id
+     * @param authentication Authentication
      * @param request AdvertisementRequest
      * @return AdvertisementResponse
      */
     @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AdvertisementResponse> updateAdvertisement(@PathVariable UUID id, @Valid @RequestBody UpdateAdvertisementRequest request) {
-        return ResponseEntity.ok(advertisementService.updateAdvertisement(id, request));
+    public ResponseEntity<AdvertisementResponse> updateAdvertisement(@PathVariable UUID id,
+                                                                     @Valid @RequestBody UpdateAdvertisementRequest request,
+                                                                    Authentication authentication) {
+        return ResponseEntity.ok(advertisementService.updateAdvertisement(id, request, authentication.getName()));
     }
 
     /**

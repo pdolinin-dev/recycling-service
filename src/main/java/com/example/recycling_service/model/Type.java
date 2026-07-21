@@ -1,11 +1,12 @@
 package com.example.recycling_service.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 
 import java.util.UUID;
 
-@Getter
+@Data
 @Entity
 @Table(name = "recycling_point_type")
 public class Type {

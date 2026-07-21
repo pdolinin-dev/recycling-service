@@ -2,11 +2,15 @@ package com.example.recycling_service.dto.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
+@Setter
 @Getter
+@NoArgsConstructor
 public class CreateRecyclingPointRequest {
     @NotBlank
     private String name;

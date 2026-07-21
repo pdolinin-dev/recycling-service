@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.util.List;
 import java.math.BigDecimal;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -19,6 +20,6 @@ public class UpdateAdvertisementRequest {
     @Positive(message = "Price must be positive (if provided)")
     private BigDecimal price;  // Опционально
 
-    private List<UUID> categoryIds;
+    private Set<UUID> categoryIds;
     // Можно добавить другие поля (например, список изображений)
 }
