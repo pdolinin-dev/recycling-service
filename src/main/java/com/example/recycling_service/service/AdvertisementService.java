@@ -1,5 +1,7 @@
 package com.example.recycling_service.service;
 
+import com.example.recycling_service.dto.PageResponse;
+import com.example.recycling_service.dto.Request.FilterAdvertisementRequest;
 import com.example.recycling_service.dto.Response.AdvertisementResponse;
 import com.example.recycling_service.dto.CategoryDto;
 import com.example.recycling_service.dto.Request.CreateAdvertisementRequest;
@@ -18,6 +20,9 @@ import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -89,20 +94,22 @@ public class AdvertisementService {
     /**
      * Поиск объявлений, относящихся к ЛЮБОЙ из указанных категорий.
      */
-    public List<AdvertisementResponse> findByCategoryIds(List<UUID> categoryIds) {
-        return advertisementRepository.findByCategoryIds(categoryIds)
+    public List<AdvertisementResponse> findByCategoryIds(FilterAdvertisementRequest request) {
+        return advertisementRepository.findByCategoryIds(request.getCategoryIds())
                 .stream().map(this::mapToDTO)
                 .toList();
     }
 
     // Find all advertisements
-    public List<AdvertisementResponse> findAll() {
-
-        List<Advertisement> ads = advertisementRepository.findAll();
-        log.info("Получено {} объявлений", ads.size());
-        return ads.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public PageResponse<AdvertisementResponse> findAll(int page, int size) {
+        Page<Advertisement> result = advertisementRepository
+                .findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
+        PageResponse<AdvertisementResponse> response = new PageResponse<>();
+        response.setContent(result.getContent().stream().map(AdvertisementResponse::new).toList());
+        response.setPageNumber(result.getNumber());
+        response.setPageSize(result.getSize());
+        response.setTotalElements(result.getTotalElements());
+        return response;
     }
 
     // Update Advertesiment
@@ -151,25 +158,26 @@ public class AdvertisementService {
     }
 
     public AdvertisementResponse createAdvertisementWithImages(CreateAdvertisementRequest request,
-                                                               List<MultipartFile> files,
                                                                String username) throws IOException {
         AdvertisementResponse created = createAdvertisement(request, username);
 
-        if (files != null && !files.isEmpty()) {
-            Advertisement ad = advertisementRepository.findById(created.getId())
-                    .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
-
-            for (MultipartFile file : files) {
-                String fileName = imageStorageService.store(file);
-                Media media = new Media();
-                media.setFilePath("/uploads/" + fileName);
-                media.setMimeType(file.getContentType());
-                ad.getMedia().add(media);
-            }
-
-            advertisementRepository.save(ad);
-        }
-
+//        if (files != null && !files.isEmpty()) {
+//            Advertisement ad = advertisementRepository.findById(created.getId())
+//                    .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+//
+//            for (MultipartFile file : files) {
+//                String fileName = imageStorageService.store(file);
+//                Media media = new Media();
+//                media.setFilePath("/uploads/" + fileName);
+//                media.setMimeType(file.getContentType());
+//                ad.getMedia().add(media);
+//            }
+//
+//            advertisementRepository.save(ad);
+//        }
+        Advertisement ad = advertisementRepository.findById(created.getId())
+                    .orElseThrow(() -> new NotFoundException("Объявление", "id", created.getId()));
+        advertisementRepository.save(ad);
         return created;
     }
 

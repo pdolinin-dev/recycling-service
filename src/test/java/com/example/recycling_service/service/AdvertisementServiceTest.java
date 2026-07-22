@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.recycling_service.dto.Request.CreateAdvertisementRequest;
+import com.example.recycling_service.dto.Request.FilterAdvertisementRequest;
 import com.example.recycling_service.dto.Request.UpdateAdvertisementRequest;
 import com.example.recycling_service.exception.ForbiddenException;
 import com.example.recycling_service.exception.NotFoundException;
@@ -330,15 +331,14 @@ class AdvertisementServiceTest {
     @Test
     @DisplayName("Получение объявлений: по категориям")
     void getAdvertisement_success_categories() {
-        List<UUID> categoryList = List.of(UUID.randomUUID(),
-                UUID.randomUUID(),
-                UUID.randomUUID());
+        FilterAdvertisementRequest request = new FilterAdvertisementRequest();
+        request.setCategoryIds(List.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
         List<Advertisement> advertisementList = List.of(advertisement);
 
-        when(advertisementRepository.findByCategoryIds(categoryList))
+        when(advertisementRepository.findByCategoryIds(request.getCategoryIds()))
                 .thenReturn(advertisementList);
 
-        List<AdvertisementResponse> advertisementResponseList = advertisementService.findByCategoryIds(categoryList);
+        List<AdvertisementResponse> advertisementResponseList = advertisementService.findByCategoryIds(request);
         assertThat(advertisementResponseList).hasSize(1);
 
         AdvertisementResponse advertisementValue = advertisementResponseList.getFirst();
@@ -346,6 +346,6 @@ class AdvertisementServiceTest {
         assertThat(advertisementValue.getTitle()).isEqualTo(advertisement.getTitle());
         assertThat(advertisementValue.getDescription()).isEqualTo(advertisement.getDescription());
 
-        verify(advertisementRepository).findByCategoryIds(categoryList);
+        verify(advertisementRepository).findByCategoryIds(request.getCategoryIds());
     }
 }

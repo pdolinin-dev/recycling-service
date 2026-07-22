@@ -1,10 +1,11 @@
 package com.example.recycling_service.controller;
 
+import com.example.recycling_service.dto.PageResponse;
+import com.example.recycling_service.dto.Request.FilterAdvertisementRequest;
 import com.example.recycling_service.dto.Response.AdvertisementResponse;
 import com.example.recycling_service.dto.CategoryDto;
 import com.example.recycling_service.dto.Request.CreateAdvertisementRequest;
 import com.example.recycling_service.dto.Request.UpdateAdvertisementRequest;
-import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.Category;
 import com.example.recycling_service.service.AdvertisementService;
 
@@ -17,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -36,15 +36,15 @@ public class AdvertisementController {
 
     /**
      * Get advertisements by categories
-     * @param categoryIds List of category ids
+     * @param request Request for filter advertisement
      * @return List of advertisements
      */
     @PostMapping("/by-categories")
     public ResponseEntity<List<AdvertisementResponse>> getByCategories(
-            @RequestBody List<UUID> categoryIds) {
-        log.debug("Запрос объявлений по категориям {}", categoryIds);
-        List<AdvertisementResponse> result = advertisementService.findByCategoryIds(categoryIds);
-        log.debug("Найдено объявлений {}", result.size());
+            @RequestBody FilterAdvertisementRequest request) {
+        log.info("Запрос объявлений по категориям {}", request.getCategoryIds());
+        List<AdvertisementResponse> result = advertisementService.findByCategoryIds(request);
+        log.info("Найдено объявлений {}", result.size());
         return ResponseEntity.ok(result);
     }
 
@@ -71,14 +71,14 @@ public class AdvertisementController {
      * @return AdvertisementResponse
      * @throws IOException
      */
-    @Deprecated
-    @PostMapping("/{id}/images")
-    public ResponseEntity<AdvertisementResponse> uploadAdImage(
-            @PathVariable UUID id,
-            @RequestParam("file") MultipartFile file
-    ) throws IOException {
-        return ResponseEntity.ok(advertisementService.addImage(id, file));
-    }
+//    @Deprecated
+//    @PostMapping("/{id}/images")
+//    public ResponseEntity<AdvertisementResponse> uploadAdImage(
+//            @PathVariable UUID id,
+//            @RequestParam("file") MultipartFile file
+//    ) throws IOException {
+//        return ResponseEntity.ok(advertisementService.addImage(id, file));
+//    }
 
     /**
      * Update advertisement
@@ -102,30 +102,30 @@ public class AdvertisementController {
      * @return List<AdvertisementResponse>
      */
     @GetMapping
-    public ResponseEntity<List<AdvertisementResponse>> getAllAdvertisements() {
+    public ResponseEntity<PageResponse<AdvertisementResponse>> getAllAdvertisements(
+            @RequestParam(defaultValue = "1") int pageSize,
+            @RequestParam(defaultValue = "20") int pageNumber) {
         log.debug("Запрос всех объявлений");
-        List<AdvertisementResponse> result = advertisementService.findAll();
-        log.debug("Возвращено объявлений: {}", result.size());
+        PageResponse<AdvertisementResponse> result = advertisementService.findAll(pageSize, pageNumber);
+        log.debug("Всего объявлений: {}, показано: {}", result.getTotalElements(), pageSize);
         return ResponseEntity.ok(result);
     }
 
     /**
      *
      * @param request AdvertisementRequest
-     * @param files MultipartFiles
      * @param authentication Authentication
      * @return AdvertisementResponse
      * @throws IOException
      */
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping
     public ResponseEntity<AdvertisementResponse> createAdvertisement(
-            @RequestPart("data") @Valid CreateAdvertisementRequest request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestBody @Valid CreateAdvertisementRequest request,
             Authentication authentication) throws IOException {
         log.info("Запрос на создание объявления: title=[{}], Пользователь: [{}]",
                 request.getTitle(), authentication.getName());
         AdvertisementResponse response = advertisementService.createAdvertisementWithImages(
-                request, files, authentication.getName());
+                request, authentication.getName());
         log.info("Объявление создано с id [{}]", response.getId());
         return ResponseEntity.ok(response);
     }

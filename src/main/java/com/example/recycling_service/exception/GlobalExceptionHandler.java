@@ -19,11 +19,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(java.util.stream.Collectors.joining("; "));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                 "timestamp", LocalDateTime.now(),
                 "status", HttpStatus.BAD_REQUEST.value(),
                 "error", "Bad Request",
-                "message", ex.getMessage()
+                "message", message
                 )
         );
     }
@@ -42,7 +45,7 @@ public class GlobalExceptionHandler {
     }
 
     // 409
-    @ExceptionHandler
+    @ExceptionHandler(ConflictException.class)
     public ResponseEntity<Map<String, Object>> ConflictExceptions(
             ConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
@@ -55,15 +58,15 @@ public class GlobalExceptionHandler {
     }
 
     // 401
-//    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
-//    public ResponseEntity<Map<String, Object>> AuthenticationException(
-//            org.springframework.security.core.AuthenticationException ex) {
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-//                "timestamp", LocalDateTime.now(),
-//                "status", HttpStatus.UNAUTHORIZED.value(),
-//                "error", "Unauthorized",
-//                "message", ex.getMessage()
-//                )
-//        );
-//    }
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<Map<String, Object>> AuthenticationException(
+            org.springframework.security.core.AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", HttpStatus.UNAUTHORIZED.value(),
+                "error", "Unauthorized",
+                "message", ex.getMessage()
+                )
+        );
+    }
 }
