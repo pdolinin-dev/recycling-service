@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -94,10 +95,15 @@ public class AdvertisementService {
     /**
      * Поиск объявлений, относящихся к ЛЮБОЙ из указанных категорий.
      */
-    public List<AdvertisementResponse> findByCategoryIds(FilterAdvertisementRequest request) {
-        return advertisementRepository.findByCategoryIds(request.getCategoryIds())
-                .stream().map(this::mapToDTO)
-                .toList();
+    public PageResponse<AdvertisementResponse> findByCategoryIds(FilterAdvertisementRequest request, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageSize, pageNumber, Sort.by("createdAt").descending());
+        Page<Advertisement> page = advertisementRepository.findByCategoryIds(request.getCategoryIds(), pageable);
+        PageResponse<AdvertisementResponse> response = new PageResponse<>();
+        response.setContent(page.getContent().stream().map(AdvertisementResponse::new).toList());
+        response.setTotalElements(page.getTotalElements());
+        response.setPageSize(page.getSize());
+        response.setPageNumber(page.getNumber());
+        return response;
     }
 
     // Find all advertisements

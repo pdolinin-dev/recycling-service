@@ -5,10 +5,10 @@ import com.example.recycling_service.dto.Request.LoginRequest;
 import com.example.recycling_service.dto.Request.RegisterRequest;
 import com.example.recycling_service.dto.Response.JwtResponse;
 import com.example.recycling_service.exception.ConflictException;
-import com.example.recycling_service.security.JwtAuthenticationFilter;
+
 import com.example.recycling_service.security.JwtTokenProvider;
 import com.example.recycling_service.service.AuthService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

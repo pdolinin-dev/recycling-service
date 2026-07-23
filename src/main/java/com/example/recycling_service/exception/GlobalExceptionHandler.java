@@ -69,4 +69,15 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    // 403
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Map<String, Object>> handleForbiddenException(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", HttpStatus.FORBIDDEN.value(),
+                "error", "Forbidden",
+                "message", ex.getMessage()
+        ));
+    }
 }

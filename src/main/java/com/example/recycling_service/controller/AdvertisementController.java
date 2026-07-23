@@ -40,11 +40,13 @@ public class AdvertisementController {
      * @return List of advertisements
      */
     @PostMapping("/by-categories")
-    public ResponseEntity<List<AdvertisementResponse>> getByCategories(
-            @RequestBody FilterAdvertisementRequest request) {
+    public ResponseEntity<PageResponse<AdvertisementResponse>> getByCategories(
+            @Valid @RequestBody FilterAdvertisementRequest request,
+            @RequestParam(defaultValue = "1") int pageSize,
+            @RequestParam(defaultValue = "20") int pageNumber) {
         log.info("Запрос объявлений по категориям {}", request.getCategoryIds());
-        List<AdvertisementResponse> result = advertisementService.findByCategoryIds(request);
-        log.info("Найдено объявлений {}", result.size());
+        PageResponse<AdvertisementResponse> result = advertisementService.findByCategoryIds(request, pageSize, pageNumber);
+        log.info("Найдено объявлений {}", result.getTotalElements());
         return ResponseEntity.ok(result);
     }
 
@@ -64,14 +66,7 @@ public class AdvertisementController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Upload image to advertisement
-     * @param id Advertisement id
-     * @param file MultipartFile
-     * @return AdvertisementResponse
-     * @throws IOException
-     */
-//    @Deprecated
+    //    @Deprecated
 //    @PostMapping("/{id}/images")
 //    public ResponseEntity<AdvertisementResponse> uploadAdImage(
 //            @PathVariable UUID id,
@@ -103,11 +98,11 @@ public class AdvertisementController {
      */
     @GetMapping
     public ResponseEntity<PageResponse<AdvertisementResponse>> getAllAdvertisements(
-            @RequestParam(defaultValue = "1") int pageSize,
-            @RequestParam(defaultValue = "20") int pageNumber) {
-        log.debug("Запрос всех объявлений");
+            @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        log.info("Запрос всех объявлений");
         PageResponse<AdvertisementResponse> result = advertisementService.findAll(pageSize, pageNumber);
-        log.debug("Всего объявлений: {}, показано: {}", result.getTotalElements(), pageSize);
+        log.info("Всего объявлений: {}, показано: {}", result.getTotalElements(), pageSize);
         return ResponseEntity.ok(result);
     }
 
@@ -121,10 +116,10 @@ public class AdvertisementController {
     @PostMapping
     public ResponseEntity<AdvertisementResponse> createAdvertisement(
             @RequestBody @Valid CreateAdvertisementRequest request,
-            Authentication authentication) throws IOException {
+            Authentication authentication) {
         log.info("Запрос на создание объявления: title=[{}], Пользователь: [{}]",
                 request.getTitle(), authentication.getName());
-        AdvertisementResponse response = advertisementService.createAdvertisementWithImages(
+        AdvertisementResponse response = advertisementService.createAdvertisement(
                 request, authentication.getName());
         log.info("Объявление создано с id [{}]", response.getId());
         return ResponseEntity.ok(response);

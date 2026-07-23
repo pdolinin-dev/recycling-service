@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.recycling_service.dto.PageResponse;
 import com.example.recycling_service.dto.Request.CreateAdvertisementRequest;
 import com.example.recycling_service.dto.Request.FilterAdvertisementRequest;
 import com.example.recycling_service.dto.Request.UpdateAdvertisementRequest;
@@ -30,6 +31,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
@@ -335,17 +337,22 @@ class AdvertisementServiceTest {
         request.setCategoryIds(List.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
         List<Advertisement> advertisementList = List.of(advertisement);
 
-        when(advertisementRepository.findByCategoryIds(request.getCategoryIds()))
-                .thenReturn(advertisementList);
+        int pageNumber = 1;
+        int pageSize = 20;
+        Pageable pageable = PageRequest.of(pageSize, pageNumber, Sort.by("createdAt").descending());
+        Page<Advertisement> page =  new PageImpl<>(advertisementList, pageable, advertisementList.size());
 
-        List<AdvertisementResponse> advertisementResponseList = advertisementService.findByCategoryIds(request);
-        assertThat(advertisementResponseList).hasSize(1);
+        when(advertisementRepository.findByCategoryIds(request.getCategoryIds(), pageable))
+                .thenReturn(page);
 
-        AdvertisementResponse advertisementValue = advertisementResponseList.getFirst();
+        PageResponse<AdvertisementResponse> response = advertisementService.findByCategoryIds(request, pageNumber, pageSize);
+        assertThat(response.getContent()).hasSize(1);
+
+        AdvertisementResponse advertisementValue = response.getContent().getFirst();
         assertThat(advertisementValue.getPrice()).isEqualTo(advertisement.getPrice());
         assertThat(advertisementValue.getTitle()).isEqualTo(advertisement.getTitle());
         assertThat(advertisementValue.getDescription()).isEqualTo(advertisement.getDescription());
 
-        verify(advertisementRepository).findByCategoryIds(request.getCategoryIds());
+        verify(advertisementRepository).findByCategoryIds(request.getCategoryIds(), pageable);
     }
 }
