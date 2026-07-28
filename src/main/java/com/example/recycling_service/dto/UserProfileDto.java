@@ -1,5 +1,6 @@
 package com.example.recycling_service.dto;
 
+import com.example.recycling_service.dto.Response.AdvertisementResponse;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.Enum.Role;
 import com.example.recycling_service.model.User;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-//@NoArgsConstructor
+@NoArgsConstructor
 //@AllArgsConstructor
 @Data
 public class UserProfileDto {
@@ -40,13 +41,13 @@ public class UserProfileDto {
     @NotBlank
     private String email;
 
-    private List<Advertisement> advertisements;
+    private List<AdvertisementResponse> advertisements;
 
 //    private String avatarPath;
 
     public UserProfileDto(UUID id, String login, String name, LocalDateTime createdAt,
                           LocalDateTime updatedAt,
-                          String email, List<Advertisement> ads) {
+                          String email, List<AdvertisementResponse> ads) {
         this.id = id;
         this.login = login;
         this.name = name;

@@ -76,8 +76,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/advertisements/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/advertisements/**").authenticated()
 
-                        .requestMatchers(HttpMethod.POST, "/api/v1/recycling-points/create").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/recycling-points/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/recycling-points").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/recycling-points/by-categories").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/recycling-points").permitAll()
 
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")

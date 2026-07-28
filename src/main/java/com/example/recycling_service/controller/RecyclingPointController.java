@@ -12,6 +12,9 @@ import com.example.recycling_service.dto.Request.RecyclePointFilterRequest;
 
 import com.example.recycling_service.service.RecyclingPointService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/recycling-points")
 public class RecyclingPointController {
@@ -27,13 +31,19 @@ public class RecyclingPointController {
     @Autowired
     private RecyclingPointService recyclingPointService;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     /**
      * Get all recycling points
      * @return List of recycling points
      */
     @GetMapping
     public List<RecyclingPointDto> getAllPoints() {
-        return recyclingPointService.getAllPoints();
+        log.info("Запрос на получение списка пунктов приема");
+        List<RecyclingPointDto> response = recyclingPointService.getAllPoints();
+        log.info("Получено {} пунктов приема", response.size());
+        return response;
     }
 
     /**
@@ -42,7 +52,10 @@ public class RecyclingPointController {
      */
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
-        return ResponseEntity.ok(recyclingPointService.getAllCategories());
+        log.info("Запрос на получение списка категорий");
+        List<CategoryDto> response = recyclingPointService.getAllCategories();
+        log.info("Получено {} категорий", response.size());
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -51,8 +64,11 @@ public class RecyclingPointController {
      * @return RecyclingPointDTO
      */
     @GetMapping("/{id}")
-    public ResponseEntity<RecyclingPointDto> getRecyclingPointById(@PathVariable UUID id) {
-        return ResponseEntity.ok(recyclingPointService.getPointById(id));
+    public ResponseEntity<RecyclingPointDto> getRecyclingPointById(@PathVariable UUID id) throws JsonProcessingException {
+        log.info("Запрос на получение информации по пункту приема с id: {}", id);
+        RecyclingPointDto response = recyclingPointService.getPointById(id);
+        log.info("Получена информация по пункту приема c id: {}", response.getId());
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -65,7 +81,10 @@ public class RecyclingPointController {
     public ResponseEntity<List<RecyclingPointDto>> getRecyclingPointByCategories(
             @RequestBody RecyclePointFilterRequest request
             ) {
-        return ResponseEntity.ok(recyclingPointService.getPointByCategory(request));
+        log.info("Запрос пунктов приема по категориям {}", request.getCategoryIds());
+        List<RecyclingPointDto> response = recyclingPointService.getPointByCategory(request);
+        log.info("Получено {} пунктов приема по категориям: {}", response.size(), request.getCategoryIds());
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -74,9 +93,12 @@ public class RecyclingPointController {
      * @param request CreateRecyclingPointRequest
      * @return RecyclingPointDTO
      */
-    @PostMapping
+    @PostMapping()
     public ResponseEntity<RecyclingPointDto> addPoint(@RequestBody CreateRecyclingPointRequest request) {
-        return ResponseEntity.ok(recyclingPointService.createPoint(request));
+        log.warn("Запрос на создание пункта приема {}", request.getName());
+        RecyclingPointDto response = recyclingPointService.createPoint(request);
+        log.info("Создан пункт приема с id: {}", response.getId());
+        return ResponseEntity.ok(response);
     }
 
     // Тоже непонятно надо ли

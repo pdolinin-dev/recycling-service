@@ -1,6 +1,7 @@
 package com.example.recycling_service.service;
 
 import com.example.recycling_service.dto.Request.UpdateUserRequest;
+import com.example.recycling_service.dto.Response.AdvertisementResponse;
 import com.example.recycling_service.dto.UserProfileDto;
 import com.example.recycling_service.exception.ForbiddenException;
 import com.example.recycling_service.model.Advertisement;
@@ -31,7 +32,6 @@ import org.slf4j.LoggerFactory;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final AdvertisementRepository advertisementRepository;
-
     /***
      * Обновление профиля
      * @param request UpdateUserRequest
@@ -55,7 +55,7 @@ public class UserService implements UserDetailsService {
             log.info("Обновлено имя [{}] пользователя {}", request.getName(), id);
         }
 
-        List<Advertisement> ads = advertisementRepository.findByUserId(id);
+        List<AdvertisementResponse> ads = getAdvertisementsByUserId(user.getId());
 
 //        if (request.getAvatarPath() != null) user.setAvatarPath(request.getAvatarPath());
 //
@@ -136,7 +136,7 @@ public class UserService implements UserDetailsService {
                     return new UsernameNotFoundException("Пользователь с login: " + login +" не найден");
                 });
 
-        List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());
+        List<AdvertisementResponse> ads = getAdvertisementsByUserId(user.getId());
 
         return new UserProfileDto(
                 user.getId(),
@@ -156,7 +156,7 @@ public class UserService implements UserDetailsService {
                     return new UsernameNotFoundException("Пользователь с id: " + userId +" не найден");
                 });
 
-        List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());
+        List<AdvertisementResponse> ads = getAdvertisementsByUserId(user.getId());
 
         return new UserProfileDto(
                 user.getId(),
@@ -174,7 +174,8 @@ public class UserService implements UserDetailsService {
         List<User> users = userRepository.findAll();
         List<UserProfileDto> userProfileDtos = new ArrayList<>(users.size());
         for (User user : users) {
-            List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());
+            List<AdvertisementResponse> ads = getAdvertisementsByUserId(user.getId());
+
             userProfileDtos.add(
                     new UserProfileDto(
                             user.getId(),
@@ -202,8 +203,9 @@ public class UserService implements UserDetailsService {
     }
 
     private UserProfileDto toUserProfileDto(User user) {
-        List<Advertisement> ads = advertisementRepository.findByUserId(user.getId());
-        UserProfileDto dto = new UserProfileDto(
+        List<AdvertisementResponse> ads = getAdvertisementsByUserId(user.getId());
+
+        return new UserProfileDto(
                 user.getId(),
                 user.getLogin(),
                 user.getName(),
@@ -213,6 +215,10 @@ public class UserService implements UserDetailsService {
                 ads
 //                user.getAvatarPath()
         );
-        return dto;
+    }
+
+    private List<AdvertisementResponse> getAdvertisementsByUserId(UUID id) {
+        return advertisementRepository.findByUserId(id)
+                .stream().map(AdvertisementResponse::new).toList();
     }
 }
