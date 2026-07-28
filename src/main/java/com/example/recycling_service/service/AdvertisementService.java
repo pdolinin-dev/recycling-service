@@ -56,26 +56,6 @@ public class AdvertisementService {
                 .orElseThrow(() -> new NotFoundException("Объявление", "id", id));
     }
 
-    // Save advertisement
-    public AdvertisementResponse addImage(UUID advertisementId, MultipartFile file) throws IOException {
-        Advertisement advertisement = advertisementRepository.findById(advertisementId)
-                .orElseThrow(() -> new NotFoundException("Объявление", "id", advertisementId));
-
-        String fileName = imageStorageService.store(file);
-
-        Media media = new Media();
-        media.setFilePath("/uploads/" + fileName);
-        media.setMimeType(file.getContentType());
-        media.setName(file.getOriginalFilename());
-        media.setSize((int) file.getSize());
-
-        advertisement.getMedia().add(media);
-
-        Advertisement savedAd = advertisementRepository.save(advertisement);
-
-        return mapToDTO(savedAd);
-    }
-
     // Delete advertisement
     public void deleteAdvertisement(UUID id, String userName) {
         User currentUser = userRepository.findByLogin(userName).orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -155,7 +135,7 @@ public class AdvertisementService {
         return new AdvertisementResponse(updatedAd);
     }
 
-    // get all advertisements
+    // Get all advertisements
     public List<AdvertisementResponse> getAllAdvertisements() {
         return advertisementRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
@@ -167,26 +147,11 @@ public class AdvertisementService {
                                                                String username) throws IOException {
         AdvertisementResponse created = createAdvertisement(request, username);
 
-//        if (files != null && !files.isEmpty()) {
-//            Advertisement ad = advertisementRepository.findById(created.getId())
-//                    .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
-//
-//            for (MultipartFile file : files) {
-//                String fileName = imageStorageService.store(file);
-//                Media media = new Media();
-//                media.setFilePath("/uploads/" + fileName);
-//                media.setMimeType(file.getContentType());
-//                ad.getMedia().add(media);
-//            }
-//
-//            advertisementRepository.save(ad);
-//        }
         Advertisement ad = advertisementRepository.findById(created.getId())
                     .orElseThrow(() -> new NotFoundException("Объявление", "id", created.getId()));
         advertisementRepository.save(ad);
         return created;
     }
-
 
     // create new advertisement
     public AdvertisementResponse createAdvertisement(CreateAdvertisementRequest request, String username) {
@@ -221,38 +186,8 @@ public class AdvertisementService {
         return new AdvertisementResponse(advertisement);
     }
 
-    /**
-     * КАТЕГОРИИ
-     */
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
-    }
-
-    private AdvertisementResponse mapToDTO(Advertisement ad) {
-
-        AdvertisementResponse dto = new AdvertisementResponse();
-        dto.setId(ad.getId());
-        dto.setTitle(ad.getTitle());
-        dto.setDescription(ad.getDescription());
-        dto.setPrice(ad.getPrice());
-        dto.setAddress(ad.getAddress());
-        dto.setCategories(ad.getCategories() != null ?
-                ad.getCategories().stream()
-                .map(CategoryDto::new)
-                .collect(Collectors.toSet()) :
-                Collections.emptySet());
-        dto.setUserId(ad.getUser().getId());
-        dto.setCreatedAt(ad.getCreatedAt());
-
-        // Добавляем пути к изображениям
-        if (!ad.getMedia().isEmpty()) {
-            List<String> mediaFilePaths = ad.getMedia().stream()
-                    .map(image -> "http://localhost:8080" + image.getFilePath())
-                    .collect(Collectors.toList());
-            dto.setMediaFilePaths(mediaFilePaths);
-        }
-
-        return dto;
     }
 
     private boolean isUserOwner(Advertisement advertisement, User user) {

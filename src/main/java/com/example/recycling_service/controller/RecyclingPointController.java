@@ -4,6 +4,7 @@
 package com.example.recycling_service.controller;
 
 import com.example.recycling_service.dto.CategoryDto;
+import com.example.recycling_service.dto.PageResponse;
 import com.example.recycling_service.dto.RecyclingPointDto;
 
 import com.example.recycling_service.dto.Request.CreateRecyclingPointRequest;
@@ -12,6 +13,7 @@ import com.example.recycling_service.dto.Request.RecyclePointFilterRequest;
 import com.example.recycling_service.service.RecyclingPointService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/recycling-points")
-
+@RequestMapping("/api/v1/recycling-points")
 public class RecyclingPointController {
 
     @Autowired

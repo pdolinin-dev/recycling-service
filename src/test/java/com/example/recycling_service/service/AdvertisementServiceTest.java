@@ -341,7 +341,6 @@ class AdvertisementServiceTest {
         int pageSize = 20;
         Pageable pageable = PageRequest.of(pageSize, pageNumber, Sort.by("createdAt").descending());
         Page<Advertisement> page =  new PageImpl<>(advertisementList, pageable, advertisementList.size());
-
         when(advertisementRepository.findByCategoryIds(request.getCategoryIds(), pageable))
                 .thenReturn(page);
 

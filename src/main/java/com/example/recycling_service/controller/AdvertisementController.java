@@ -98,7 +98,7 @@ public class AdvertisementController {
      */
     @GetMapping
     public ResponseEntity<PageResponse<AdvertisementResponse>> getAllAdvertisements(
-            @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "1") int pageNumber, 
             @RequestParam(defaultValue = "20") int pageSize) {
         log.info("Запрос всех объявлений");
         PageResponse<AdvertisementResponse> result = advertisementService.findAll(pageSize, pageNumber);
