@@ -93,7 +93,7 @@ class AdvertisementControllerTest {
 
     @Test
     @WithMockUser(username = "testuser")
-    @DisplayName("POST /advertisement - 201")
+    @DisplayName("POST /advertisement - 200")
     void createAdvertisement_success_return201() throws Exception{
         CategoryDto categoryDto = new CategoryDto();
         UUID categoryId = UUID.randomUUID();

@@ -30,7 +30,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         log.info("Авторизация пользователя {}", loginRequest.getLogin());
-        return ResponseEntity.ok(authService.login(loginRequest));
+        JwtResponse response = authService.login(loginRequest);
+        log.info("Пользователь с login: [{}] авторизован", response.getLogin());
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -41,6 +43,8 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<JwtResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
         log.info("Регистрация пользователя {}", registerRequest.getLogin());
-        return ResponseEntity.ok(authService.register(registerRequest));
+        JwtResponse response = authService.register(registerRequest);
+        log.info("Пользователь с login: [{}] успешно зарегестрирован", response.getLogin());
+        return ResponseEntity.ok(response);
     }
 }
