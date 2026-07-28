@@ -58,11 +58,6 @@ public class UserController {
         return response;
     }
 
-//    @GetMapping
-//    public List<UserProfileDto> getUserProfiles(){
-//        return userService.getUserProfiles();
-//    }
-
     @PutMapping(path="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserProfileDto updateUserProfile(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request) {
         log.warn("Запрос обновления пользователя с id [{}]", id);
