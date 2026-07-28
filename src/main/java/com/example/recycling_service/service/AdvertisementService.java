@@ -25,7 +25,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,14 +56,14 @@ public class AdvertisementService {
     }
 
     // Delete advertisement
-    public void deleteAdvertisement(UUID id, String userName) {
-        User currentUser = userRepository.findByLogin(userName).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public void deleteAdvertisement(UUID id, String login) {
+        User currentUser = userRepository.findByLogin(login).orElseThrow(() -> new NotFoundException("Пользователь", "login", login));
         Advertisement ad = advertisementRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Объявление", "Id", id));
 
         // Проверяем, является ли текущий пользователь владельцем или администратором
         if (!isUserOwner(ad, currentUser) && !currentUser.getRole().equals(Role.ADMIN)) {
-            log.warn("У пользователя [{}] нет прав на удаление объявление [{}]", userName, id);
+            log.warn("У пользователя [{}] нет прав на удаление объявление [{}]", login, id);
             throw new ForbiddenException(currentUser.getName());
         }
 
@@ -104,7 +103,7 @@ public class AdvertisementService {
                 .orElseThrow(() -> new NotFoundException("Объявление", "id", id));
 
         User currentUser = userRepository.findByLogin(login)
-                .orElseThrow(() -> new UsernameNotFoundException("Пользователь c логин " + login + " не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь", "login", login));
 
         if (!isUserOwner(ad, currentUser) && !currentUser.getRole().equals(Role.ADMIN)){
             log.warn("У пользователя [{}] нет прав на изменение объявление [{}]", login, id);
@@ -154,8 +153,8 @@ public class AdvertisementService {
     }
 
     // create new advertisement
-    public AdvertisementResponse createAdvertisement(CreateAdvertisementRequest request, String username) {
-        User user = userRepository.findByLogin(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public AdvertisementResponse createAdvertisement(CreateAdvertisementRequest request, String login) {
+        User user = userRepository.findByLogin(login).orElseThrow(() -> new NotFoundException("Пользователь", "login", login));
         Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategoryIds()));
 
         if (categories.size() != request.getCategoryIds().size()) {
@@ -179,10 +178,7 @@ public class AdvertisementService {
     // get advertisement by id
     public AdvertisementResponse getAdvertisementById(UUID id) {
         Advertisement advertisement = advertisementRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Advertisement not found with id: " + id
-                ));
+                .orElseThrow(() -> new NotFoundException("Advertisement", "id", id));
         return new AdvertisementResponse(advertisement);
     }
 

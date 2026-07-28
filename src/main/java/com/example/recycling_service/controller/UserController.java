@@ -43,7 +43,7 @@ public class UserController {
 
     @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserProfle(@PathVariable UUID id, Authentication authentication) {
+    public ResponseEntity<Void> deleteUserProfileById(@PathVariable UUID id, Authentication authentication) {
         log.warn("Запрос на удаление пользователя c id [{}] администратором: [{}]", id, authentication.getName());
         userService.deleteUserProfile(id, authentication.getName());
         log.warn("Пользователь [{}] удален администратором: [{}]", id, authentication.getName());
@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserProfileDto getUserProfile(@PathVariable UUID id) {
+    public UserProfileDto getUserProfileById(@PathVariable UUID id) {
         log.info("Запрос получение пользователя с id: [{}]", id);
         UserProfileDto response = userService.getUserProfileWithAdvertisements(id);
         log.info("Получен профиль пользователя с id: [{}]", id);

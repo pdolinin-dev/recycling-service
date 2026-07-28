@@ -240,8 +240,8 @@ class RecyclingPointControllerTest {
     void createRecyclingPoint_notAdminUserForbidden_return403() throws Exception {
         CreateRecyclingPointRequest request = new CreateRecyclingPointRequest();
 
-        doThrow(new ForbiddenException("notAdminUser"))
-                .when(recyclingPointService.createPoint(any()));
+        when(recyclingPointService.createPoint(any()))
+                .thenThrow(new ForbiddenException("notAdminUser"));
 
         mockMvc.perform(post("/api/v1/recycling-points")
                 .contentType(MediaType.APPLICATION_JSON))

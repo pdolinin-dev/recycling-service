@@ -4,7 +4,8 @@ import com.example.recycling_service.dto.Request.UpdateUserRequest;
 import com.example.recycling_service.dto.Response.AdvertisementResponse;
 import com.example.recycling_service.dto.UserProfileDto;
 import com.example.recycling_service.exception.ForbiddenException;
-import com.example.recycling_service.model.Advertisement;
+import com.example.recycling_service.exception.NotFoundException;
+
 import com.example.recycling_service.model.Enum.Role;
 import com.example.recycling_service.model.User;
 import com.example.recycling_service.repository.AdvertisementRepository;
@@ -18,13 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Slf4j
 @Service
@@ -39,7 +36,7 @@ public class UserService implements UserDetailsService {
      */
     public UserProfileDto updateUserProfile(UUID id, @Valid UpdateUserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User" + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("Пользователь", "id", id));
 
         //Меняем значение только, если в request не Null
         if (request.getLogin() != null) {
@@ -81,7 +78,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> {
                     log.error("Пользователь с login: {} не найден", login);
-                    return new UsernameNotFoundException("Пользователь с login: " + login + " не найден");
+                    return new NotFoundException("Пользователь", "login", login);
                 });
 
         userRepository.delete(user);
@@ -96,7 +93,7 @@ public class UserService implements UserDetailsService {
         User currentUser = userRepository.findByLogin(login)
                 .orElseThrow(() -> {
                     log.error("Пользователь с login: {} не найден", login);
-                    return new UsernameNotFoundException("Пользователь с login: " + login + " не найден");
+                    return new NotFoundException("Пользователь", "login", login);
                 });
 
         // Действие доступно только админу
@@ -108,18 +105,18 @@ public class UserService implements UserDetailsService {
         User deletableUser = userRepository.findById(deletableUserId)
                 .orElseThrow(() -> {
                     log.error("Пользователь с id: {} не найден", deletableUserId);
-                    return new UsernameNotFoundException("Пользователь с id: " + deletableUserId + " не найден");
+                    return new NotFoundException("Пользователь", "id", deletableUserId);
                 });
 
         userRepository.delete(deletableUser);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String login) {
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> {
                     log.warn("Пользователь с login: {} не найден", login);
-                    return new UsernameNotFoundException("Пользователь с login: " + login +" не найден");
+                    return new NotFoundException("Пользователь", "login", login);
                     });
 
         return new org.springframework.security.core.userdetails.User(
@@ -133,7 +130,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> {
                     log.warn("Пользователь с login: {} не найден", login);
-                    return new UsernameNotFoundException("Пользователь с login: " + login +" не найден");
+                    return new NotFoundException("Пользователь", "login", login);
                 });
 
         List<AdvertisementResponse> ads = getAdvertisementsByUserId(user.getId());
@@ -153,7 +150,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> {
                     log.warn("Пользователь с id: {} не найден", userId);
-                    return new UsernameNotFoundException("Пользователь с id: " + userId +" не найден");
+                    return new NotFoundException("Пользователь", "id", userId);
                 });
 
         List<AdvertisementResponse> ads = getAdvertisementsByUserId(user.getId());
@@ -196,7 +193,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("Пользователь с id: {} не найден", userId);
-                    return new UsernameNotFoundException("Пользователь с id: " + userId +" не найден");
+                    return new NotFoundException("Пользователь", "id", userId);
                 });
 //        user.setAvatarPath(avatarPath);
         return toUserProfileDto(userRepository.save(user));

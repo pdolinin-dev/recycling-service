@@ -80,10 +80,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/recycling-points/by-categories").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/recycling-points").permitAll()
 
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/{id}").hasRole("ADMIN")
+                        //.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+
                         .requestMatchers("/api/v1/user/profile").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/user/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/user/{id}").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user/{id}").permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

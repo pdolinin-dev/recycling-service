@@ -3,6 +3,7 @@ package com.example.recycling_service.service;
 import com.example.recycling_service.dto.Request.UpdateUserRequest;
 import com.example.recycling_service.dto.UserProfileDto;
 import com.example.recycling_service.exception.ForbiddenException;
+import com.example.recycling_service.exception.NotFoundException;
 import com.example.recycling_service.model.Advertisement;
 import com.example.recycling_service.model.Enum.Role;
 import com.example.recycling_service.model.User;
@@ -27,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,7 +87,7 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.loadUserByUsername("test_login_123"))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -115,7 +115,7 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getUserProfileWithAdvertisements("test_login_123"))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -143,7 +143,7 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getUserProfileWithAdvertisements(user.getId()))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -184,7 +184,7 @@ class UserServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.updateUserProfile(userId, request))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -200,12 +200,12 @@ class UserServiceTest {
 
     @Test
     @DisplayName("Удаления профиля пользователем: ")
-    void deleteUserProfile_UsernameNotFoundException() {
+    void deleteUserProfile_NotFoundException() {
         when(userRepository.findByLogin(user.getLogin()))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteUserProfile("test_login_123"))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test

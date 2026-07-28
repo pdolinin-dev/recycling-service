@@ -219,7 +219,7 @@ class AdvertisementServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> advertisementService.updateAdvertisement(advertisementId, request, user.getLogin()))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -291,7 +291,7 @@ class AdvertisementServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> advertisementService.deleteAdvertisement(advertisementId, user.getLogin()))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
