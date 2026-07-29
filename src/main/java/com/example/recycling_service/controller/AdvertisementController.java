@@ -42,10 +42,10 @@ public class AdvertisementController {
     @PostMapping("/by-categories")
     public ResponseEntity<PageResponse<AdvertisementResponse>> getByCategories(
             @Valid @RequestBody FilterAdvertisementRequest request,
-            @RequestParam(defaultValue = "1") int pageSize,
-            @RequestParam(defaultValue = "20") int pageNumber) {
+            @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "20") int pageSize) {
         log.info("Запрос объявлений по категориям {}", request.getCategoryIds());
-        PageResponse<AdvertisementResponse> result = advertisementService.findByCategoryIds(request, pageSize, pageNumber);
+        PageResponse<AdvertisementResponse> result = advertisementService.findByCategoryIds(request, pageNumber - 1, pageSize);
         log.info("Найдено объявлений {}", result.getTotalElements());
         return ResponseEntity.ok(result);
     }
@@ -101,8 +101,8 @@ public class AdvertisementController {
             @RequestParam(defaultValue = "1") int pageNumber, 
             @RequestParam(defaultValue = "20") int pageSize) {
         log.info("Запрос всех объявлений");
-        PageResponse<AdvertisementResponse> result = advertisementService.findAll(pageSize, pageNumber);
-        log.info("Всего объявлений: {}, показано: {}", result.getTotalElements(), pageSize);
+        PageResponse<AdvertisementResponse> result = advertisementService.findAll(pageNumber - 1, pageSize);
+        log.info("Всего объявлений: {}, показано: {}", result.getTotalElements(), result.getContent().size());
         return ResponseEntity.ok(result);
     }
 

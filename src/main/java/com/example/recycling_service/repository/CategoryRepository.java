@@ -16,6 +16,8 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
             "ORDER BY c.name ASC")
     Set<Category> findAllById(@Param("categories") Set<UUID> categoryIds);
 
+    Category save(Category category);
+
     long countByIdIn(Set<UUID> categoryIds);
 
     List<Category> findAll();

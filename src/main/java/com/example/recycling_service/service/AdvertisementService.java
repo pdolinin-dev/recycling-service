@@ -75,13 +75,13 @@ public class AdvertisementService {
      * Поиск объявлений, относящихся к ЛЮБОЙ из указанных категорий.
      */
     public PageResponse<AdvertisementResponse> findByCategoryIds(FilterAdvertisementRequest request, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageSize, pageNumber, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
         Page<Advertisement> page = advertisementRepository.findByCategoryIds(request.getCategoryIds(), pageable);
         PageResponse<AdvertisementResponse> response = new PageResponse<>();
         response.setContent(page.getContent().stream().map(AdvertisementResponse::new).toList());
         response.setTotalElements(page.getTotalElements());
         response.setPageSize(page.getSize());
-        response.setPageNumber(page.getNumber());
+        response.setPageNumber(page.getNumber() + 1);
         return response;
     }
 
@@ -91,7 +91,7 @@ public class AdvertisementService {
                 .findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
         PageResponse<AdvertisementResponse> response = new PageResponse<>();
         response.setContent(result.getContent().stream().map(AdvertisementResponse::new).toList());
-        response.setPageNumber(result.getNumber());
+        response.setPageNumber(result.getNumber() + 1);
         response.setPageSize(result.getSize());
         response.setTotalElements(result.getTotalElements());
         return response;
