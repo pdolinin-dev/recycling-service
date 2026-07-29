@@ -113,7 +113,7 @@ public class AdvertisementIntegrationTest extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.content[0].categories").isArray())
                 .andExpect(jsonPath("$.pageNumber").value(1))
                 .andExpect(jsonPath("$.pageSize").value(3))
-                .andExpect(jsonPath("$.totalElements").value());
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test
