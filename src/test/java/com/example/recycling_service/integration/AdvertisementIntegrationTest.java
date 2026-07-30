@@ -1,13 +1,10 @@
 package com.example.recycling_service.integration;
 
-import com.example.recycling_service.dto.CategoryDto;
 import com.example.recycling_service.dto.Request.CreateAdvertisementRequest;
 import com.example.recycling_service.dto.Request.FilterAdvertisementRequest;
-import com.example.recycling_service.dto.Response.AdvertisementResponse;
 import com.example.recycling_service.model.Category;
 import com.example.recycling_service.repository.AdvertisementRepository;
 import com.example.recycling_service.repository.CategoryRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.DisplayName;
@@ -17,12 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

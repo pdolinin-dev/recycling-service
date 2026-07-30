@@ -42,7 +42,7 @@ public class RecyclingPointController {
     public List<RecyclingPointDto> getAllPoints() {
         log.info("Запрос на получение списка пунктов приема");
         List<RecyclingPointDto> response = recyclingPointService.getAllPoints();
-        log.info("Получено {} пунктов приема", response.size());
+        log.info("Получено [{}] пунктов приема", response.size());
         return response;
     }
 
@@ -54,7 +54,7 @@ public class RecyclingPointController {
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
         log.info("Запрос на получение списка категорий");
         List<CategoryDto> response = recyclingPointService.getAllCategories();
-        log.info("Получено {} категорий", response.size());
+        log.info("Получено [{}] категорий", response.size());
         return ResponseEntity.ok(response);
     }
 
@@ -65,9 +65,9 @@ public class RecyclingPointController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<RecyclingPointDto> getRecyclingPointById(@PathVariable UUID id) throws JsonProcessingException {
-        log.info("Запрос на получение информации по пункту приема с id: {}", id);
+        log.info("Запрос на получение информации по пункту приема с id: [{}]", id);
         RecyclingPointDto response = recyclingPointService.getPointById(id);
-        log.info("Получена информация по пункту приема c id: {}", response.getId());
+        log.info("Получена информация по пункту приема c id: [{}]", response.getId());
         return ResponseEntity.ok(response);
     }
 
@@ -81,9 +81,9 @@ public class RecyclingPointController {
     public ResponseEntity<List<RecyclingPointDto>> getRecyclingPointByCategories(
             @RequestBody RecyclePointFilterRequest request
             ) {
-        log.info("Запрос пунктов приема по категориям {}", request.getCategoryIds());
+        log.info("Запрос пунктов приема по категориям [{}]", request.getCategoryIds());
         List<RecyclingPointDto> response = recyclingPointService.getPointByCategory(request);
-        log.info("Получено {} пунктов приема по категориям: {}", response.size(), request.getCategoryIds());
+        log.info("Получено {} пунктов приема по категориям: [{}]", response.size(), request.getCategoryIds());
         return ResponseEntity.ok(response);
     }
 
@@ -95,9 +95,9 @@ public class RecyclingPointController {
      */
     @PostMapping()
     public ResponseEntity<RecyclingPointDto> addPoint(@RequestBody CreateRecyclingPointRequest request) {
-        log.warn("Запрос на создание пункта приема {}", request.getName());
+        log.warn("Запрос на создание пункта приема [{}]", request.getName());
         RecyclingPointDto response = recyclingPointService.createPoint(request);
-        log.info("Создан пункт приема с id: {}", response.getId());
+        log.info("Создан пункт приема с id: [{}]", response.getId());
         return ResponseEntity.ok(response);
     }
 
