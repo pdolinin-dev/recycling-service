@@ -14,8 +14,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -23,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-@Testcontainers
 public abstract class BaseIntegrationTest {
 
     @Autowired
@@ -32,16 +29,18 @@ public abstract class BaseIntegrationTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    // Singleton: один контейнер на весь JVM, не пересоздаётся между тест-классами
+    static final PostgreSQLContainer<?> postgres;
+
     static {
         System.setProperty("DOCKER_HOST", "tcp://localhost:2375");
         System.setProperty("TESTCONTAINERS_RYUK_DISABLED", "true");
+        postgres = new PostgreSQLContainer<>("postgres:15")
+                .withDatabaseName("testdb")
+                .withUsername("test")
+                .withPassword("test");
+        postgres.start();
     }
-
-    @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test");
 
     @DynamicPropertySource
     static void overrideDataSourceProperties(DynamicPropertyRegistry registry) {
@@ -66,7 +65,7 @@ public abstract class BaseIntegrationTest {
 
     protected String loginAsAdminAndGetToken() throws Exception {
         LoginRequest req = new LoginRequest();
-        req.setLogin("test_admin");;
+        req.setLogin("test_admin");
         req.setPassword("Admin_password_123");
 
         String body = mockMvc.perform(post("/api/v1/auth/login")
